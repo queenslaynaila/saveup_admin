@@ -2,7 +2,8 @@ import { Suspense } from "react";
 import { Route, Switch } from "wouter";
 import Loader from "./components/Loader";
 import { Login } from "./views/Login";
-import { Dashboard } from "./views/Dashboard";
+import Users from "./views/Users";
+import Campaigns from "./views/Campaigns";
 
 function App() {
   return (
@@ -10,7 +11,8 @@ function App() {
       <Suspense fallback={<Loader />}>
         <Switch>
           <Route path="/log-in" component={Login} />
-          <Route path="/dashboard" component={Dashboard} />
+          <Route path="/users" component={Users} />
+          <Route path="/admin/campaigns" component={Campaigns} />
         </Switch>
       </Suspense>
     </div>
