@@ -1,8 +1,6 @@
 import { css, cx } from "@linaria/atomic"
 import { GiSplash } from "react-icons/gi"
 import { IoClose } from "react-icons/io5"
-import { TiTick } from "react-icons/ti"
-import { FaXmark } from "react-icons/fa6"
 import {
   DANGER_BACKGROUND,
   DANGER_COMPLIMENT,
@@ -28,21 +26,6 @@ const ToastContainerStyles = css`
   ${mq[0]} {
     min-height: 4.5rem;
   }
-`
-
-const ToastIconContainer = css`
-  position: absolute;
-  left: 1.25rem;
-  top: -1.15rem;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 50%;
-  color: white;
-  justify-content: center;
-`
-
-const ToastIcon = css`
-  font-size: 1.75rem;
 `
 
 const ToastMessageContainer = css`
@@ -126,19 +109,6 @@ const Toast = ({ message, onRemove, index, isSuccess = false }: Props) => (
       className={ToastContainerStyles}
       style={{ background: isSuccess ? SUCCESS_BACKGROUND : DANGER_BACKGROUND }}
     >
-      <div
-        className={cx(FlexCenter, ToastIconContainer)}
-        style={{
-          background: isSuccess ? SUCCESS_COMPLIMENT : DANGER_COMPLIMENT,
-        }}
-      >
-        {isSuccess ? (
-          <TiTick className={ToastIcon} />
-        ) : (
-          <FaXmark className={ToastIcon} />
-        )}
-      </div>
-
       <div className={cx(FlexColumn, ToastMessageContainer)}>
         <h4 className={cx(TitleStyles, ToastTitle)}>
           {isSuccess ? "Successful!" : "Oh Snap!"}

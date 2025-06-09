@@ -1,12 +1,12 @@
-import { useState } from "react"
 import { css, cx } from "@linaria/core"
-import { THEME_COLOR, TEXT_PRIMARY, BORDER_COLOR } from "../../styles/colors"
+import { BORDER_COLOR, TEXT_PRIMARY, THEME_COLOR } from "../../styles/colors"
+import { useLocation } from "wouter"
+import { useState } from "react"
+import useToasts from "../../hooks/useToast"
 import type { LoginData } from "../../types/user.types"
 import { signIn } from "../../data/api/auth"
-import { useLocation } from "wouter"
-import { errorText, fontSizeStyles } from "../../styles/commonStyles"
+import { errorTextStyles, fontSizeStyles } from "../../styles/commonStyles"
 import Toast from "../Cards/Toast"
-import useToasts from "../../hooks/useToast"
 
 const formStyles = css`
   display: flex;
@@ -15,8 +15,9 @@ const formStyles = css`
 `
 
 const inputGroupStyles = css`
-  position: relative;
-  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 `
 
 const labelStyles = css`
@@ -114,11 +115,11 @@ export function LoginForm() {
   }
 
   return (
-    <>
-      <form className={formStyles} onSubmit={handleSubmit}>
-        <div className={inputGroupStyles}>
-          <label className={labelStyles}>Phone Number</label>
-          <input
+   <>
+    <form className={formStyles}  onSubmit={handleSubmit}>
+      <div className={inputGroupStyles}>
+        <label className={labelStyles}>Phone Number</label>
+        <input
             type="tel"
             className={inputStyles}
             placeholder="0712345678"
@@ -134,42 +135,42 @@ export function LoginForm() {
             }}
           />
           {formErrors.phone_number && (
-            <p className={cx(fontSizeStyles, errorText)}>
+            <p className={cx(fontSizeStyles, errorTextStyles)}>
               {formErrors.phone_number}
             </p>
           )}
-        </div>
+      </div>
 
-        <div className={inputGroupStyles}>
-          <label className={labelStyles}>Password</label>
-          <input
-            type="password"
-            className={inputStyles}
-            placeholder="Enter your pin"
-            maxLength={4}
-            value={values.pin}
-            required
-            onChange={(e) => {
-              const value = e.target.value
-              const error = value.length !== 4 ? "Must be 4 digits" : null
-              handleInputChange("pin", value, error)
-            }}
-          />
-          {formErrors.phone_number && (
-            <p className={cx(fontSizeStyles, errorText)}>{formErrors.pin}</p>
-          )}
-        </div>
+      <div className={inputGroupStyles}>
+        <label className={labelStyles}>Password</label>
+        <input
+          type="password"
+          className={inputStyles}
+          placeholder="Enter your pin"
+          maxLength={4}
+          value={values.pin}
+          required
+          onChange={(e) => {
+            const value = e.target.value
+            const error = value.length !== 4 ? "Must be 4 digits" : null
+            handleInputChange("pin", value, error)
+          }}
+        />
+        {formErrors.phone_number && (
+          <p className={cx(fontSizeStyles, errorTextStyles)}>{formErrors.pin}</p>
+        )}
+      </div>
 
-        <button
+      <button
           type="submit"
           className={buttonStyles}
           disabled={!isValid || isSubmitting}
         >
           {isSubmitting ? "Signing In..." : "Sign In"}
-        </button>
-      </form>
+      </button>
 
-      {toasts.map((toast, i) => (
+    </form>
+     {toasts.map((toast, i) => (
         <Toast
           key={toast.id}
           index={i}
@@ -178,6 +179,6 @@ export function LoginForm() {
           isSuccess={toast.type === "success"}
         />
       ))}
-    </>
+   </>
   )
 }
