@@ -1,92 +1,75 @@
-"use client"
+import { css, cx } from "@linaria/atomic"
+import type React from "react"
+import { 
+  FlexBetweenCenter, 
+  FlexCenter, 
+  FlexColumn 
+} from "../../styles/commonStyles"
 
-import { Menu } from "lucide-react"
-import { css } from "@linaria/core"
-import { TEXT_PRIMARY, BORDER_COLOR, THEME_COLOR } from "../../styles/colors"
-
-const headerStyles = css`
-  background-color: white;
-  border-bottom: 1px solid ${BORDER_COLOR};
-  padding: 1rem 2rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  width: 100%;
-  height: 64px;
-  
-  @media (max-width: 768px) {
-    padding: 1rem;
-  }
+const dashBoardHeaderStyles = css`
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
 `
 
-const leftSectionStyles = css`
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+const headerTitleStyles = css`
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  color: #000000;
 `
 
-const menuButtonStyles = css`
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-  transition: background-color 0.2s ease;
-  color: ${TEXT_PRIMARY};
-  @media (max-width: 768px) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+const headerTextStyles = css`
+  color: #272b33;
 `
 
-const titleStyles = css`
-  h3 {
-    margin: 0;
-    color: ${TEXT_PRIMARY};
-    font-size: 1.25rem;
-    font-weight: 600;
-  }
-  
-  @media (max-width: 768px) {
-    h3 {
-      font-size: 1.1rem;
-    }
-  }
-`
-
-const avatarStyles = css`
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: ${THEME_COLOR};
-  display: flex;
-  align-items: center;
-  justify-content: center;
+const actionBtnStyles = css`
+  gap: 8px;
+  background-color: #111827;
   color: white;
-  font-weight: 600;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 0.9rem;
+  &:hover {
+    background-color: #1F2937;
+  }
 `
-
-interface HeaderProps {
-  onMenuToggle: () => void
+interface DashboardHeaderProps {
+  heading: string
+  description?: string
+  actionLabel?: string
+  actionIcon?: React.ReactNode
+  onAction?: () => void
+  children?: React.ReactNode
 }
 
-export function Header({ onMenuToggle }: HeaderProps) {
+
+export function Header({
+  heading,
+  description,
+  actionLabel,
+  actionIcon,
+  onAction,
+  children
+}: DashboardHeaderProps) {
   return (
-    <div className={headerStyles}>
-      <div className={leftSectionStyles}>
-        <button className={menuButtonStyles} onClick={onMenuToggle} aria-label="Toggle menu">
-          <Menu size={24} />
-        </button>
-        <div className={titleStyles}>
-          <h3>Admin Dashboard</h3>
-        </div>
+    <div className={cx(dashBoardHeaderStyles, FlexBetweenCenter)}>
+      <div className={FlexColumn}>
+        <h1 className={headerTitleStyles}>{heading}</h1>
+        {description && <p className={headerTextStyles}>{description}</p>}
       </div>
 
-      <div className={avatarStyles}>AD</div>
+      {actionLabel && onAction && (
+        <button className={cx(actionBtnStyles, FlexCenter)} onClick={onAction}>
+          {actionIcon}
+          {actionLabel}
+        </button>
+      )}
+
+      {children}
     </div>
   )
 }

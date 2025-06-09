@@ -1,93 +1,81 @@
 import { css } from "@linaria/core"
-import { TEXT_PRIMARY, BORDER_COLOR, LIGHT_THEME_COLOR } from "../../styles/colors"
+import { Link, useLocation } from "wouter"
+import { FaUserGroup } from "react-icons/fa6";
+import { FiUsers, FiPocket, FiTarget } from "react-icons/fi"
 
-const sidebarStyles = css`
-  width: 260px;
-  border-right: 1px solid ${BORDER_COLOR};
-  display: flex;
-  flex-direction: column;
-  height: calc(100vh - 64px);
-  
-  @media (max-width: 768px) {
-    position: fixed;
-    top: 64px;
-    left: 0;
-    z-index: 50;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease-in-out;
-    
-    &.open {
-      transform: translateX(0);
-    }
-  }
+const sidebarContainerStyles = css`
+  width: 240px;
+  background-color: #fff;
+  border-right: 1px solid #E5E7EB;
+  padding: 16px 0;
+  height: 100%;
 `
 
-const navStyles = css`
-  flex: 1;
+const navListStyles = css`
+  list-style: none;
   padding: 0;
-  overflow-y: auto;
+  margin: 0;
 `
 
 const navItemStyles = css`
-  display: flex;
-  align-items: center;
-  padding: 0.75rem 1.5rem;
-  color: ${TEXT_PRIMARY};
-  text-decoration: none;
-  transition: all 0.2s ease;
-  border: none;
-  background: none;
-  width: 100%;
-  cursor: pointer;
-  text-align: left;
-  
-  &:hover {
-    background-color: ${LIGHT_THEME_COLOR};
-  }
-  
-  &.active {
-    background-color:${LIGHT_THEME_COLOR};
+  margin: 4px 0;
+`
+
+const activeNavItemStyles = css`
+  a {
+    background-color: #F3F4F6;
     font-weight: 500;
-  }
-  
-  .icon {
-    margin-right: 0.75rem;
-    font-size: 1.2rem;
-    width: 20px;
-    display: flex;
-    justify-content: center;
-  }
-  
-  .label {
-    font-size: 0.95rem;
   }
 `
 
-interface SidebarProps {
-  isOpen: boolean
-  onClose: () => void
-}
+const navLinkStyles = css`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #111827;
+  text-decoration: none;
+  border-radius: 6px;
+  margin: 0 8px;
+  
+  &:hover {
+    background-color: #F3F4F6;
+  }
+  
+  svg {
+    color: #6B7280;
+  }
+`
 
-export function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const navItems = [
-    { icon: "📊", label: "Dashboard", href: "/dashboard", active: true },
-    { icon: "👥", label: "Users", href: "/users" },
-    { icon: "💰", label: "Savings", href: "/savings" },
-    { icon: "🎯", label: "Goals", href: "/goals" },
-    { icon: "📈", label: "Analytics", href: "/analytics" },
-    { icon: "⚙️", label: "Settings", href: "/settings" },
+export function Sidebar() {
+  const [location] = useLocation()
+
+  const isActive = (path: string) => {
+    if (path === "/admin/dashboard" && location === path) {
+      return true
+    }
+    return path !== "/admin/dashboard" && location.startsWith(path)
+  }
+
+  const navItems = [       
+    { href: "/admin/users", label: "Users", icon: FiUsers },      
+    { href: "/admin/groups", label: "Groups", icon: FaUserGroup },         
+    { href: "/admin/pockets", label: "Pockets", icon: FiPocket },    
+    { href: "/admin/campaigns", label: "Campaigns", icon: FiTarget }    
   ]
 
   return (
-    <div className={`${sidebarStyles} ${isOpen ? "open" : ""}`}>
-      <nav className={navStyles}>
-        {navItems.map((item, index) => (
-          <button key={index} className={`${navItemStyles} ${item.active ? "active" : ""}`} onClick={onClose}>
-            <span className="icon">{item.icon}</span>
-            <span className="label">{item.label}</span>
-          </button>
+    <aside className={sidebarContainerStyles}>
+      <ul className={navListStyles}>
+        {navItems.map(({ href, label, icon: Icon }) => (
+          <li key={href} className={`${navItemStyles} ${isActive(href) ? activeNavItemStyles : ""}`}>
+            <Link href={href} className={navLinkStyles}>
+              <Icon size={20} />
+              <span>{label}</span>
+            </Link>
+          </li>
         ))}
-      </nav>
-    </div>
+      </ul>
+    </aside>
   )
 }

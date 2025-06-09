@@ -35,3 +35,12 @@ export const signOut = async (): Promise<number> => {
     return Promise.reject(error);
   }
 };
+
+export const getUserData = (): User | undefined => {
+  const userString = localStorage.getItem(USER);
+
+  if (!userString)
+    return;
+
+  return JSON.parse(userString);
+};
