@@ -4,6 +4,8 @@ import Loader from "./components/Loader";
 import { Login } from "./views/Login";
 import Users from "./views/Users";
 import Campaigns from "./views/Campaigns";
+import Groups from "./views/Groups";
+import Pockets from "./views/Pockets";
 
 function App() {
   return (
@@ -11,8 +13,10 @@ function App() {
       <Suspense fallback={<Loader />}>
         <Switch>
           <Route path="/log-in" component={Login} />
-          <Route path="/users" component={Users} />
+          <Route path="/admin/users" component={Users} />
+          <Route path="/admin/groups" component={Groups} />
           <Route path="/admin/campaigns" component={Campaigns} />
+          <Route path="/admin/pockets" component={Pockets} />
         </Switch>
       </Suspense>
     </div>
