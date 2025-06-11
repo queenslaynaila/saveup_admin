@@ -163,15 +163,16 @@ export function UserDetailCard({ user }: UserDetailCardProps) {
             <CreditCard />
             <span>Overall Balance: KES {formatCurrency(totalBalance)}</span>
           </div>
-          <div className={detailItem}>
-            <MapPin />
-            <span>Country: {user.country}</span>
-          </div>
+          
           <div className={detailItem}>
             <User />
             <span>ID Type: {user.id_type}</span>
           </div>
           <div className={detailItem}>
+            <MapPin />
+            <span>Country: {user.country}</span>
+          </div>
+           <div className={detailItem}>
             <User />
             <span>ID Number: {user.id_number}</span>
           </div>

@@ -189,6 +189,9 @@ useEffect(() => {
                       }}>
                       <div className={actionsHeader}>Actions</div>
                       <div className={actionItem}>
+                        View Activity
+                      </div>
+                      <div className={actionItem}>
                         Unlock
                       </div>
                       <div className={actionSeparator}></div>
