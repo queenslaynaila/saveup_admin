@@ -1,8 +1,9 @@
 import { css } from "@linaria/atomic"
-import type { User } from "../../types/user.types"
 import { AlertCircle, MoreHorizontal } from "lucide-react"
 import { useEffect, useState } from "react"
 import { getPocketsBalance } from "../../data/api/pockets"
+import type { UserWithPublicAttributes } from "../../views/Users"
+import { formatDate } from "../../utils/formartDate"
 
 const tableWrapper = css`
   overflow-x: auto;
@@ -122,7 +123,7 @@ const actionsOverlay = css`
 `
 
 
-export function UserTable({ users }: { users: User[] }) {
+export function UserTable({ users }: { users: UserWithPublicAttributes[] }) {
   const [activeMenu, setActiveMenu] = useState<number | null>(null)
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
   const [balances, setBalances] = useState<{ userId: number; balance: number }[]>([])
@@ -155,16 +156,19 @@ useEffect(() => {
       <table className={tableContainer}>
         <thead>
           <tr className={tableHeader}>
+            <th className={tableHeaderCell}>Name</th>
             <th className={tableHeaderCell}>Phone</th>
             <th className={tableHeaderCell}>Country</th>
             <th className={tableHeaderCell}>Id</th>
             <th className={tableHeaderCell}>Total Balance</th>
+            <th className={tableHeaderCell}>Last Login</th>
             <th className={tableHeaderCell}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {users.map((user, index) => (
             <tr key={index} className={tableRow}>
+              <td className={tableCell}>{user.full_name}</td>
               <td className={tableCell}>{user.phone_number}</td>
               <td className={tableCell}>{user.country}</td>
               <td className={tableCell}>
@@ -173,6 +177,9 @@ useEffect(() => {
               </td>
               <td className={tableCell}> 
                 {balances.find(b => b.userId === user.id)?.balance ?? 'Loading...'}
+              </td>
+              <td className={tableCell}> 
+                {formatDate(user.last_login, 'full')}
               </td>
               <td className={tableCell}>
                 <button className={actionButton} onClick={(e) => toggleMenu(index, e)}>

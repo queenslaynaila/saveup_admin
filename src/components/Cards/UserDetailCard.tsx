@@ -1,5 +1,5 @@
 import { css } from "@linaria/atomic"
-import { Phone, MapPin, User, CreditCard } from "lucide-react"
+import { Phone, MapPin, User, CreditCard, LogIn } from "lucide-react"
 import { BORDER_COLOR, TEXT_PRIMARY } from "../../styles/colors"
 import type { User as UserType } from "../../types/user.types"
 import { useEffect, useState } from "react"
@@ -7,6 +7,7 @@ import { getPocketsBalance } from "../../data/api/pockets"
 import useToasts from "../../hooks/useToast"
 import formatCurrency from "../../utils/formartCurrency"
 import Toast from "./Toast"
+import { formatDate } from "../../utils/formartDate"
 
 const cardStyles = css`
   background-color: white;
@@ -125,7 +126,7 @@ const unlockButton = css`
 `
 
 interface UserDetailCardProps {
-  user: UserType
+  user: UserType & {last_login: string}
 }
 
 export function UserDetailCard({ user }: UserDetailCardProps) {
@@ -168,6 +169,7 @@ export function UserDetailCard({ user }: UserDetailCardProps) {
             <User />
             <span>ID Type: {user.id_type}</span>
           </div>
+          
           <div className={detailItem}>
             <MapPin />
             <span>Country: {user.country}</span>
@@ -175,6 +177,14 @@ export function UserDetailCard({ user }: UserDetailCardProps) {
            <div className={detailItem}>
             <User />
             <span>ID Number: {user.id_number}</span>
+          </div>
+          <div className={detailItem}>
+            <User />
+            <span>Member Since: {formatDate(user.created_at, 'short')}</span>
+          </div>
+           <div className={detailItem}>
+            <LogIn />
+            <span>Last Login: {formatDate(user.last_login, 'full')}</span>
           </div>
         </div>
 
