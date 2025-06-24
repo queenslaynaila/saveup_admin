@@ -1,19 +1,22 @@
 import { css } from "@linaria/atomic"
 import { Layout } from "../components/Layout/DashboardLayout"
 import { Search } from "lucide-react"
-import { useState } from "react"
+import { useEffect,useState } from "react"
 import type { User } from "../types/user.types"
 import { BORDER_COLOR, TEXT_PRIMARY, THEME_COLOR } from "../styles/colors"
-import { UserTable } from "../components/Tables/UserTable"
+import UserTable from "../components/Tables/UserTable"
 import { UserDetailCard } from "../components/Cards/UserDetailCard"
 import { Header } from "../components/Layout/Header"
-import { searchUser } from "../data/api/users"
+import { searchUser, unlockUserAccount } from "../data/api/users"
 import { UserTransactionsTable } from "../components/Tables/UserTransactionsTable"
 import Loader from "../components/Loader"
 import { getTransactions } from "../data/api/transaction"
 import type { Transaction } from "../types/transaction.types"
+import Toast from "../components/Cards/Toast"
+import useToasts from "../hooks/useToast"
+import { normalizePhoneNumber } from "../utils/normalisePhone"
 
-const container = css`
+const containerStyles = css`
   padding: 24px;
   width: 100%;
 
@@ -104,6 +107,13 @@ const emptyStateStyles = css`
   }
 `
 
+const EmptyState = ({ title, message }: { title: string; message: string }) => (
+  <div className={emptyStateStyles}>
+    <h3>{title}</h3>
+    <p>{message}</p>
+  </div>
+)
+
 export type UserWithPublicAttributes = User & {
   last_login: string
 }
@@ -112,37 +122,91 @@ export default function Users() {
   const [searchQuery, setSearchQuery] = useState("")
   const [displayedSearchQuery, setDisplayedSearchQuery] = useState("")
   const [searchResults, setSearchResults] = useState<UserWithPublicAttributes[]>([])
+  const [selectedUser, setSelectedUser] = useState<UserWithPublicAttributes | null>(null)
   const [transactions, setTransactions] = useState<Transaction[]>([])
-  const [loading, setLoading] = useState(false)
+  const [isSearchingUsers, setIsSearchingUsers] = useState(false)
+  const [isFetchingTransactions, setIsFetchingTransactions] = useState(false)
+
+  const { toasts, addToast, removeToast } = useToasts()
+
+  const loading = isSearchingUsers || isFetchingTransactions
+  const isBackButtonVisible = selectedUser && searchResults.length > 1
+  const showSearchResults = displayedSearchQuery && !loading
 
   const handleSearch = () => {
-    setLoading(true)
+    setIsSearchingUsers(true)
     setDisplayedSearchQuery(searchQuery)
+    setSelectedUser(null)
 
-    searchUser(searchQuery)
+    const normalizedQuery = normalizePhoneNumber(searchQuery);
+
+    searchUser(normalizedQuery)
       .then((users) => {
         setSearchResults(users)
+        if (users.length === 1) {
+          setSelectedUser(users[0])
+        }
       })
-      .finally(() => setLoading(false))
+      .finally(() =>{
+        setIsSearchingUsers(false)
+     })
   }
 
-  const handleActivitySearch = () => {
-    setLoading(true)
+  useEffect(() => {
+    if (selectedUser) {
+      setIsFetchingTransactions(true)
+      getTransactions(selectedUser.id)
+        .then((transactions) => {
+          setTransactions(transactions)
+        })
+        .finally(() =>{
+          setIsFetchingTransactions(false)
+        })
+    } else {
+      setTransactions([])
+    }
+  }, [selectedUser])
+  
+  const handleViewUserTransactions = (user: UserWithPublicAttributes) => {
+    setSelectedUser(user)
+    setSearchQuery(user.phone_number)
+  }
 
-    getTransactions(searchResults[0].id)
-      .then((transactions) => {
-        setTransactions(transactions)
+  const handleUnlockAccount = (user: UserWithPublicAttributes) => {
+    unlockUserAccount(user.id, "Account unlocked by admin")
+      .then(() => {
+        addToast(`Account for ${user.full_name} has been unlocked successfully.`, 'success')
       })
-      .finally(() => setLoading(false))
+      .catch((error) => {
+        if (error?.response?.status === 404 && error?.response?.data?.message === 'ERR_ACCOUNT_IS_NOT_LOCKED') {
+          addToast("The requested account is not locked.", 'information')
+        } else {
+          addToast("Failed to unlock account. Please try again.", 'error')
+        }
+    })
+  }
+
+  const handleBackToResults = () => {
+    setSelectedUser(null)
   }
 
   return (
     <Layout>
-      <div className={container}>
+      <div className={containerStyles}>
         <Header
           heading="Users"
           description="Manage and view user details and activity."
         />
+
+        {isBackButtonVisible  && (
+          <button 
+            onClick={handleBackToResults}
+            className={searchButtonStyles}
+            style ={{ marginBottom: '1rem' }}
+          >
+          Back
+          </button>
+        )}
 
         <div className={searchContainerStyles}>
           <div className={searchWrapperStyles}>
@@ -155,47 +219,60 @@ export default function Users() {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <button className={searchButtonStyles} onClick={handleSearch}>
+          <button className={searchButtonStyles} onClick={handleSearch} disabled={loading}>
             Search
           </button>
         </div>
 
-        {displayedSearchQuery && !loading && searchResults.length === 1 && (
-          <UserDetailCard user={searchResults[0]} />
+        {showSearchResults && (
+          <>
+            {selectedUser && 
+              <UserDetailCard 
+                user={selectedUser} 
+                OnUnlock={handleUnlockAccount} 
+              />
+            }
+
+            {!selectedUser && searchResults.length > 0 && (
+              <UserTable 
+                users={searchResults} 
+                OnViewUserTransactions={handleViewUserTransactions} 
+                OnUnlock={handleUnlockAccount}
+              />
+            )}
+
+            {selectedUser && transactions.length > 0 && (
+              <UserTransactionsTable transactions={transactions} />
+            )}
+
+            {searchResults.length === 0 && (
+              <EmptyState 
+                title="No users found"
+                message="No users match your search criteria. Try a different search term."
+              />
+            )}
+
+            {selectedUser && transactions.length === 0 && (
+              <EmptyState 
+                title="No transactions found"
+                message="Adjust your search criteria to find transactions."
+              />
+            )}
+          </>
         )}
 
-        {displayedSearchQuery && !loading && searchResults.length > 1 && (
-          <UserTable users={searchResults} />
-        )}
-
-        {displayedSearchQuery &&
-          !loading &&
-          searchResults.length === 1 &&
-          transactions.length > 0 && (
-            <UserTransactionsTable transactions={transactions} />
-          )}
-
-        {displayedSearchQuery &&
-          !loading &&
-          searchResults.length === 0 && (
-            <div className={emptyStateStyles}>
-              <h3>No users found</h3>
-              <p>No users match your search criteria. Try a different search term.</p>
-            </div>
-          )}
-
-        {displayedSearchQuery &&
-          !loading &&
-          searchResults.length === 1 &&
-          transactions.length === 0 && (
-            <div className={emptyStateStyles}>
-              <h3>No transactions found</h3>
-              <p>Adjust your search criteria to find transactions.</p>
-            </div>
-          )}
-
-        {loading && <Loader centerOnFullWidthScreen={true} />}
+        {loading && <Loader />}
       </div>
+
+      {toasts.map((toast, i) => (
+        <Toast
+          key={toast.id}
+          index={i}
+          message={toast}
+          onRemove={removeToast}
+          isSuccess={toast.type === "success"}
+        />
+      ))}
     </Layout>
   )
 }
