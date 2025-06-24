@@ -8,11 +8,15 @@ import { UserTable } from "../components/Tables/UserTable"
 import { UserDetailCard } from "../components/Cards/UserDetailCard"
 import { Header } from "../components/Layout/Header"
 import { searchUser } from "../data/api/users"
+import { UserTransactionsTable } from "../components/Tables/UserTransactionsTable"
+import Loader from "../components/Loader"
+import { getTransactions } from "../data/api/transaction"
+import type { Transaction } from "../types/transaction.types"
 
 const container = css`
   padding: 24px;
   width: 100%;
-  
+
   @media (max-width: 768px) {
     padding: 16px;
   }
@@ -22,7 +26,7 @@ const searchContainerStyles = css`
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
-  
+
   @media (max-width: 768px) {
     flex-direction: column;
   }
@@ -40,7 +44,7 @@ const searchInputStyles = css`
   border-radius: 0.5rem;
   font-size: 0.95rem;
   background-color: white;
-  
+
   &:focus {
     outline: none;
     border-color: ${THEME_COLOR};
@@ -68,11 +72,11 @@ const searchButtonStyles = css`
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
-  
+
   &:hover {
     background-color: ${THEME_COLOR}dd;
   }
-  
+
   @media (max-width: 768px) {
     width: 100%;
     justify-content: center;
@@ -80,44 +84,65 @@ const searchButtonStyles = css`
 `
 
 const emptyStateStyles = css`
+  margin-top: 2rem;
   text-align: center;
-  padding: 3rem 1rem;
+  padding: 1rem;
   background-color: white;
   border: 1px solid ${BORDER_COLOR};
   border-radius: 0.5rem;
-  
+
   h3 {
     font-size: 1.25rem;
     font-weight: 600;
     color: ${TEXT_PRIMARY};
     margin-bottom: 0.5rem;
   }
-  
+
   p {
     color: #64748b;
     margin-bottom: 1.5rem;
   }
 `
 
+export type UserWithPublicAttributes = User & {
+  last_login: string
+}
+
 export default function Users() {
   const [searchQuery, setSearchQuery] = useState("")
   const [displayedSearchQuery, setDisplayedSearchQuery] = useState("")
-  const [searchResults, setSearchResults] = useState<User[]>([])
+  const [searchResults, setSearchResults] = useState<UserWithPublicAttributes[]>([])
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(false)
 
   const handleSearch = () => {
+    setLoading(true)
     setDisplayedSearchQuery(searchQuery)
-    
+
     searchUser(searchQuery)
-      .then((users)=>{
-       setSearchResults(users)
-      })   
+      .then((users) => {
+        setSearchResults(users)
+      })
+      .finally(() => setLoading(false))
   }
 
+  const handleActivitySearch = () => {
+    setLoading(true)
+
+    getTransactions(searchResults[0].id)
+      .then((transactions) => {
+        setTransactions(transactions)
+      })
+      .finally(() => setLoading(false))
+  }
 
   return (
     <Layout>
       <div className={container}>
-        <Header heading="Users" description="Manage and view user details and activity." />
+        <Header
+          heading="Users"
+          description="Manage and view user details and activity."
+        />
 
         <div className={searchContainerStyles}>
           <div className={searchWrapperStyles}>
@@ -135,19 +160,41 @@ export default function Users() {
           </button>
         </div>
 
-         {displayedSearchQuery && searchResults.length === 1 ? (
+        {displayedSearchQuery && !loading && searchResults.length === 1 && (
           <UserDetailCard user={searchResults[0]} />
-        ) : (
-          <UserTable users={searchResults} />
-        )} 
-
-        {displayedSearchQuery && searchResults.length === 0 && (
-          <div className={emptyStateStyles}>
-            <h3>No users found</h3>
-            <p>No users match your search criteria. Try a different search term.</p>
-          </div>
         )}
 
+        {displayedSearchQuery && !loading && searchResults.length > 1 && (
+          <UserTable users={searchResults} />
+        )}
+
+        {displayedSearchQuery &&
+          !loading &&
+          searchResults.length === 1 &&
+          transactions.length > 0 && (
+            <UserTransactionsTable transactions={transactions} />
+          )}
+
+        {displayedSearchQuery &&
+          !loading &&
+          searchResults.length === 0 && (
+            <div className={emptyStateStyles}>
+              <h3>No users found</h3>
+              <p>No users match your search criteria. Try a different search term.</p>
+            </div>
+          )}
+
+        {displayedSearchQuery &&
+          !loading &&
+          searchResults.length === 1 &&
+          transactions.length === 0 && (
+            <div className={emptyStateStyles}>
+              <h3>No transactions found</h3>
+              <p>Adjust your search criteria to find transactions.</p>
+            </div>
+          )}
+
+        {loading && <Loader centerOnFullWidthScreen={true} />}
       </div>
     </Layout>
   )
