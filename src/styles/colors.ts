@@ -5,12 +5,32 @@ export const DARK_THEME_COLOR = "#008f86"
 export const BG_PRIMARY = "#ffffff"
 export const BG_SECONDARY = "#f8fafc"
 export const BG_CARD_COLOR = "#ffffff"
+
 export const TEXT_PRIMARY = "#1e293b"
 export const TEXT_SECONDARY = "#64748b"
 export const TEXT_MUTED = "#94a3b8"
+
 export const BORDER_COLOR = "#e2e8f0"
 export const BORDER_RADIUS_SMALL = "0.375rem"
 export const BORDER_RADIUS_MEDIUM = "0.5rem"
 export const BORDER_RADIUS_LARGE = "0.75rem"
+
 export const SHADOW_SMALL = "0 1px 2px 0 rgb(0 0 0 / 0.05)"
 export const SHADOW_MEDIUM = "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1)"
+
+export const DANGER_COLOR = "#dc233d";
+
+
+// toast
+export const SUCCESS_BACKGROUND = "#04a65b";
+
+export const SUCCESS_COMPLIMENT = "#005e39";
+
+export const DANGER_BACKGROUND = "#851d41";
+
+export const DANGER_COMPLIMENT = "#da3055";
+
+
+export const TEXT_COLOR = "rgba(0, 0, 0, 0.5)";
+
+export const TITLE_COLOR = "rgba(0, 0, 0, 0.8)";
