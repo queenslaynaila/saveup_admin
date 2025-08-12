@@ -1,4 +1,4 @@
-import { TOKEN, USER } from "../../constants/strings";
+import { ACCESS_TOKEN, REFRESH_TOKEN,  USER } from "../../constants/strings";
 import type { LoginData, User } from "../../types/user.types";
 import { prependCountryCode } from "../../utils/validators";
 import api from "./config";
@@ -16,9 +16,12 @@ export const signIn = async (
   const response = await api.post("/auth/login", data);
 
   const authorizationToken = response.headers.authorization || "";
-  const user: User = response.data;
+  const refreshToken = response.data.refreshToken || "";
 
-  localStorage.setItem(TOKEN, authorizationToken);
+  const user: User = response.data;
+  
+  localStorage.setItem(REFRESH_TOKEN, refreshToken);
+  localStorage.setItem(ACCESS_TOKEN, authorizationToken);
   localStorage.setItem(USER, JSON.stringify(user));
 
   return "success";
@@ -27,7 +30,7 @@ export const signIn = async (
 export const signOut = async (): Promise<number> => {
   try {
     const response = await api.delete("/auth/logout");
-    localStorage.removeItem(TOKEN);
+    localStorage.removeItem(ACCESS_TOKEN);
     localStorage.removeItem(USER);
 
     return response.status;
