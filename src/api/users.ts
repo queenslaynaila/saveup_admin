@@ -54,5 +54,3 @@ export const updateUserAccountStatus = async (
     return Promise.reject(error)
   }
 }
-
-export const refresh = async
