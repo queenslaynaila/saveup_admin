@@ -282,10 +282,10 @@ const accountStatusOptions: Array<"Active" | "Inactive" | "Suspended"> = ['Activ
 
 interface UserDetailCardProps {
   user: UserType & { last_login: string }
-  OnUnlock: (user: UserWithPublicAttributes) => void
+  onUnlock: (user: UserWithPublicAttributes) => void
 }
 
-export function UserDetailCard({ user, OnUnlock}: UserDetailCardProps) {
+export function UserDetailCard({ user, onUnlock}: UserDetailCardProps) {
   const [totalBalance, setTotalBalance] = useState<number>(0)
   const [showDeactivateModal, setShowDeactivateModal] = useState(false)
   const [selectedStatus, setSelectedStatus] = useState<"Active"|"Inactive"|"Suspended">("Active")
@@ -368,7 +368,7 @@ export function UserDetailCard({ user, OnUnlock}: UserDetailCardProps) {
           </button>
           <button
             className={unlockButtonStyles}
-            onClick={() => { OnUnlock(user) }}
+            onClick={() => { onUnlock(user) }}
           >
             Unlock
           </button>

@@ -124,11 +124,11 @@ const actionsOverlayStyles = css`
 
 type UserTableProps = {
   users: UserWithPublicAttributes[]
-  OnViewUserTransactions: (user: UserWithPublicAttributes) => void
-  OnUnlock: (user: UserWithPublicAttributes) => void
+  onViewUserTransactions: (user: UserWithPublicAttributes) => void
+  onUnlock: (user: UserWithPublicAttributes) => void
 }
 
-const UserTable: FC<UserTableProps> = ({ users, OnViewUserTransactions, OnUnlock}) => {
+const UserTable: FC<UserTableProps> = ({ users, onViewUserTransactions, onUnlock}) => {
   const [activeMenu, setActiveMenu] = useState<number | null>(null)
   const [menuPosition, setMenuPosition] = useState({ top: 0, left: 0 })
   const [balances, setBalances] = useState<{ userId: number; balance: number }[]>([])
@@ -157,7 +157,7 @@ const UserTable: FC<UserTableProps> = ({ users, OnViewUserTransactions, OnUnlock
 
   const handleViewTransactions = (user: UserWithPublicAttributes) => {
     setActiveMenu(null)
-    OnViewUserTransactions(user)
+    onViewUserTransactions(user)
   }
 
   return (
@@ -215,7 +215,7 @@ const UserTable: FC<UserTableProps> = ({ users, OnViewUserTransactions, OnUnlock
                         View Transactions
                       </div>
                       <div className={actionItemStyles} onClick={() => {
-                        OnUnlock(user)
+                        onUnlock(user)
                       }}>
                         Unlock
                       </div>
