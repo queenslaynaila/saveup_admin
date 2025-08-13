@@ -4,9 +4,9 @@ import { useLocation } from "wouter"
 import { useState } from "react"
 import useToasts from "../../hooks/useToast"
 import type { LoginData } from "../../types/user.types"
-import { signIn } from "../../api/api/auth"
 import { errorTextStyles, fontSizeStyles } from "../../styles/commonStyles"
 import Toast from "../Cards/Toast"
+import { signIn } from "../../api/auth"
 
 const formStyles = css`
   display: flex;
