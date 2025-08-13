@@ -28,10 +28,10 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       try {
         const refreshToken = localStorage.getItem(REFRESH_TOKEN);
-        const res = await axios.post(
+        const res = await api.post(
           "/auth/refresh",
           {},
-          { headers: { refresh: refreshToken || "" } }
+          { headers: { refresh: `Bearer ${refreshToken}` } }
         );
         const newAccessToken = res.headers.authorization || "";
         localStorage.setItem(ACCESS_TOKEN, newAccessToken);
