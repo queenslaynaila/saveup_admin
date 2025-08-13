@@ -66,24 +66,6 @@ const searchIconStyles = css`
   height: 18px;
 `;
 
-const searchButtonStyles = css`
-  background-color: ${THEME_COLOR};
-  color: white;
-  padding: 0.75rem 1.5rem;
-  border: none; 
-  border-radius: 0.5rem;
-  font-size: 0.95rem; 
-  font-weight: 500;
-  cursor: pointer; 
-  transition: all 0.2s ease;
-  &:hover { 
-    background-color: ${THEME_COLOR}; 
-  }
-  @media (max-width: 768px) { 
-    width: 100%; 
-    justify-content: center; 
-  }
-`;
 
 const emptyStateStyles = css`
   margin-top: 2rem; 
@@ -111,11 +93,10 @@ const EmptyStateMessage = ({ title, message }: { title: string; message: string 
   </div>
 );
 
-const UserSearchBar = ({ value, onChange, onSearch, isLoading }: { 
-  value: string; 
-  onChange: (v: string) => void; 
-  onSearch: () => void; 
-  isLoading: boolean; 
+const UserSearchBar = ({ value, onChange, isLoading }: {
+  value: string;
+  onChange: (v: string) => void;
+  isLoading: boolean;
 }) => (
   <div className={searchContainerStyles}>
     <div className={searchWrapperStyles}>
@@ -125,12 +106,10 @@ const UserSearchBar = ({ value, onChange, onSearch, isLoading }: {
         className={searchInputStyles}
         placeholder="Search by phone number or ID number"
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={e => onChange(e.target.value)}
+        disabled={isLoading}
       />
     </div>
-    <button className={searchButtonStyles} onClick={onSearch} disabled={isLoading}>
-      Search
-    </button>
   </div>
 );
 
@@ -166,11 +145,16 @@ export default function Users() {
   const isBackButtonVisible = selectedUser && searchResults.length > 1;
   const showSearchResults = lastSearchValue && !isLoading;
 
-  const handleUserSearch = () => {
+  useEffect(() => {
+    if (searchInputValue === "") {
+      setSearchResults([]);
+      setLastSearchValue("");
+      setSelectedUser(null);
+      return;
+    }
     setIsFetchingUsers(true);
     setLastSearchValue(searchInputValue);
     setSelectedUser(null);
-
     const normalizedQuery = normalizePhoneNumber(searchInputValue);
     searchUser(normalizedQuery)
       .then((users) => {
@@ -178,7 +162,7 @@ export default function Users() {
         if (users.length === 1) setSelectedUser(users[0]);
       })
       .finally(() => setIsFetchingUsers(false));
-  };
+  }, [searchInputValue]);
 
   const handleUnlockAccount = (user: UserWithPublicAttributes) => {
     unlockUserAccount(user.id, "Account unlocked by admin")
@@ -210,7 +194,6 @@ export default function Users() {
         <UserSearchBar
           value={searchInputValue}
           onChange={setSearchInputValue}
-          onSearch={handleUserSearch}
           isLoading={isLoading}
         />
 
