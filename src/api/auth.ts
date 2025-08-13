@@ -16,7 +16,7 @@ export const signIn = async (
   const response = await api.post("/auth/login", data);
 
   const authorizationToken = response.headers.authorization || "";
-  const refreshToken = response.data.refreshToken || "";
+  const refreshToken = response.headers.refresh|| "";
 
   const user: User = response.data;
   
