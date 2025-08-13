@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { mockUsers } from "../data/mockUsers"
+import { mockUsers } from "../api/mockUsers"
 import type { User } from "../types/user.types"
 import { css } from "@linaria/atomic"
 import { Layout } from "../components/Layout/DashboardLayout"

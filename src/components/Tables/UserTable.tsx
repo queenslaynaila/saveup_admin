@@ -1,7 +1,7 @@
 import { css } from "@linaria/atomic"
 import { AlertCircle, MoreHorizontal } from "lucide-react"
 import { useEffect, useState, type FC } from "react"
-import { getPocketsBalance } from "../../data/api/pockets"
+import { getPocketsBalance } from "../../api/api/pockets"
 import type { UserWithPublicAttributes } from "../../views/Users"
 import { formatDate } from "../../utils/formartDate"
 

@@ -5,7 +5,7 @@ import { Menu } from "lucide-react"
 import { Sidebar } from "./Sidebar"
 import { BG_CARD_COLOR, BORDER_COLOR, SHADOW_MEDIUM, TEXT_PRIMARY, THEME_COLOR } from "../../styles/colors"
 import { FlexBetweenCenter, FlexCenter } from "../../styles/commonStyles"
-import { getUserData, signOut } from "../../data/api/auth"
+import { getUserData, signOut } from "../../api/api/auth"
 import { useLocation } from "wouter"
 
 const layoutContainerStyles = css`

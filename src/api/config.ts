@@ -1,5 +1,5 @@
 import axios from "axios";
-import { ACCESS_TOKEN, REFRESH_TOKEN } from "../../constants/strings.ts";
+import { ACCESS_TOKEN, REFRESH_TOKEN } from "../constants/strings.ts";
 
 const api = axios.create({
   baseURL: "https://api.jemanaila.dev/saveup",

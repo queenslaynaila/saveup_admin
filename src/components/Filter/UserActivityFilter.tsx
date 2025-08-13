@@ -2,7 +2,7 @@
 
 import { css } from "@linaria/atomic"
 import { BORDER_COLOR, TEXT_PRIMARY, THEME_COLOR } from "../../styles/colors"
-import type { ActivityType, TransactionSubType, NonTransactionSubType } from "../../data/mockActivity"
+import type { ActivityType, TransactionSubType, NonTransactionSubType } from "../../api/mockActivity"
 
 const filterBarStyles = css`
   display: flex;

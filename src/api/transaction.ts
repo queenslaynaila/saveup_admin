@@ -1,5 +1,5 @@
 import type { Transaction } from "../../types/transaction.types"
-import api from "./config"
+import api from "../config"
 
 export const getTransactions = 
     async (entityId: number): Promise<Transaction[]> => {

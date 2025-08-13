@@ -1,4 +1,4 @@
-import type { UserWithPublicAttributes } from "../../views/Users"
+import type { UserWithPublicAttributes } from "../views/Users"
 import api from "./config"
 
 export const searchUser = async (searchValue: string): Promise<UserWithPublicAttributes[]>  => {
@@ -54,3 +54,5 @@ export const updateUserAccountStatus = async (
     return Promise.reject(error)
   }
 }
+
+export const refresh = async
