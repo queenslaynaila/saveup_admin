@@ -1,4 +1,4 @@
-import type { UserWithPublicAttributes } from "../views/Users"
+import type { UserWithPublicAttributes } from "../types/user.types"
 import api from "./config"
 
 export const searchUser = async (searchValue: string): Promise<UserWithPublicAttributes[]>  => {

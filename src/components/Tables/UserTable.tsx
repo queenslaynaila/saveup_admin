@@ -1,9 +1,9 @@
 import { css } from "@linaria/atomic"
 import { AlertCircle, MoreHorizontal } from "lucide-react"
 import { useEffect, useState, type FC } from "react"
-import type { UserWithPublicAttributes } from "../../views/Users"
 import { formatDate } from "../../utils/formartDate"
 import { getPocketsBalance } from "../../api/pockets"
+import type { UserWithPublicAttributes } from "../../types/user.types"
 
 const tableWrapperStyles = css`
   overflow-x: auto;

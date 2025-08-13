@@ -2,9 +2,8 @@ import { css, cx } from "@linaria/atomic";
 import { Layout } from "../components/Layout/DashboardLayout";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { User } from "../types/user.types";
+import type { UserWithPublicAttributes } from "../types/user.types";
 import { BORDER_COLOR, TEXT_PRIMARY, THEME_COLOR } from "../styles/colors";
-import UserTable from "../components/Tables/UserTable";
 import { UserDetailCard } from "../components/Cards/UserDetailCard";
 import { Header } from "../components/Layout/Header";
 import { searchUser, unlockUserAccount } from "../api/users";
@@ -15,6 +14,7 @@ import Toast from "../components/Cards/Toast";
 import useToasts from "../hooks/useToast";
 import { normalizePhoneNumber } from "../utils/normalisePhone";
 import { getTransactions } from "../api/transaction";
+import { UNLOCK_NOTE } from "../constants/strings";
 
 
 const containerStyles = css`
@@ -86,6 +86,39 @@ const emptyStateStyles = css`
   }
 `;
 
+const miniListStyles = css`
+  position: absolute;
+  top: 110%;
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid ${BORDER_COLOR};
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  z-index: 10;
+  max-height: 260px;
+  overflow-y: auto;
+`;
+
+const miniListItemStyles = css`
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  border-bottom: 1px solid ${BORDER_COLOR};
+  font-size: 0.97rem;
+  background: #fff;
+  transition: background 0.15s;
+  &:hover {
+    background: #f5f7fa;
+  }
+  &:last-child {
+    border-bottom: none;
+  }
+`;
+
+
 const EmptyStateMessage = ({ title, message }: { title: string; message: string }) => (
   <div className={emptyStateStyles}>
     <h3>{title}</h3>
@@ -93,10 +126,18 @@ const EmptyStateMessage = ({ title, message }: { title: string; message: string 
   </div>
 );
 
-const UserSearchBar = ({ value, onChange, isLoading }: {
+
+type UserSearchBarProps = {
   value: string;
   onChange: (v: string) => void;
   isLoading: boolean;
+  suggestions: UserWithPublicAttributes[];
+  onSuggestionSelect: (user: UserWithPublicAttributes) => void;
+  showSuggestions: boolean;
+};
+
+const UserSearchBar: React.FC<UserSearchBarProps> = ({
+   value, onChange, suggestions, onSuggestionSelect, showSuggestions
 }) => (
   <div className={searchContainerStyles}>
     <div className={searchWrapperStyles}>
@@ -107,8 +148,21 @@ const UserSearchBar = ({ value, onChange, isLoading }: {
         placeholder="Search by phone number or ID number"
         value={value}
         onChange={e => onChange(e.target.value)}
-        disabled={isLoading}
       />
+      {showSuggestions && suggestions.length > 0 && (
+        <div className={miniListStyles}>
+          {suggestions.slice(0, 10).map(user => (
+            <div
+              key={user.id}
+              className={miniListItemStyles}
+              onClick={() => onSuggestionSelect(user)}
+            >
+              <span>{user.phone_number}</span>
+              <span style={{ color: '#64748b' }}>{user.full_name}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   </div>
 );
@@ -129,43 +183,44 @@ function useUserTransactions(userId?: number) {
 }
 
 
-export type UserWithPublicAttributes = User & { last_login: string };
-
-export default function Users() {
-  const [searchInputValue, setSearchInputValue] = useState("");
-  const [lastSearchValue, setLastSearchValue] = useState("");
-  const [searchResults, setSearchResults] = useState<UserWithPublicAttributes[]>([]);
+const Users: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [lastSearchedQuery, setLastSearchedQuery] = useState("");
+  const [matchedUsers, setMatchedUsers] = useState<UserWithPublicAttributes[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserWithPublicAttributes | null>(null);
-  const [isFetchingUsers, setIsFetchingUsers] = useState(false);
+  const [isSearching, setIsSearching] = useState(false);
 
   const { transactions, isFetching: isFetchingTransactions } = useUserTransactions(selectedUser?.id);
   const { toasts, addToast, removeToast } = useToasts();
 
-  const isLoading = isFetchingUsers || isFetchingTransactions;
-  const isBackButtonVisible = selectedUser && searchResults.length > 1;
-  const showSearchResults = lastSearchValue && !isLoading;
+  const isLoading = isSearching || isFetchingTransactions;
+  const isBackButtonVisible = selectedUser && matchedUsers.length > 1;
+  const showSearchResults = lastSearchedQuery && !isLoading;
 
   useEffect(() => {
-    if (searchInputValue === "") {
-      setSearchResults([]);
-      setLastSearchValue("");
+    if (searchQuery === "") {
+      setMatchedUsers([]);
+      setLastSearchedQuery("");
       setSelectedUser(null);
       return;
     }
-    setIsFetchingUsers(true);
-    setLastSearchValue(searchInputValue);
+
+    setIsSearching(true);
+    setLastSearchedQuery(searchQuery);
     setSelectedUser(null);
-    const normalizedQuery = normalizePhoneNumber(searchInputValue);
+
+    const normalizedQuery = normalizePhoneNumber(searchQuery);
+
     searchUser(normalizedQuery)
       .then((users) => {
-        setSearchResults(users);
+        setMatchedUsers(users);
         if (users.length === 1) setSelectedUser(users[0]);
       })
-      .finally(() => setIsFetchingUsers(false));
-  }, [searchInputValue]);
+      .finally(() => setIsSearching(false));
+  }, [searchQuery]);
 
-  const handleUnlockAccount = (user: UserWithPublicAttributes) => {
-    unlockUserAccount(user.id, "Account unlocked by admin")
+  const handleUserUnlock = (user: UserWithPublicAttributes) => {
+    unlockUserAccount(user.id, UNLOCK_NOTE)
       .then(() => addToast(
         `Account for ${user.full_name} has been unlocked successfully.`, "success"
       ))
@@ -192,33 +247,28 @@ export default function Users() {
         )}
 
         <UserSearchBar
-          value={searchInputValue}
-          onChange={setSearchInputValue}
+          value={searchQuery}
+          onChange={setSearchQuery}
           isLoading={isLoading}
+          suggestions={matchedUsers}
+          onSuggestionSelect={user => {
+            setSelectedUser(user);
+            setSearchQuery(user.phone_number);
+          }}
+          showSuggestions={!selectedUser}
         />
 
         {showSearchResults && (
           <>
             {selectedUser && (
-              <UserDetailCard user={selectedUser} onUnlock={handleUnlockAccount} />
-            )}
-
-            {!selectedUser && searchResults.length > 0 && (
-              <UserTable
-                users={searchResults}
-                onViewUserTransactions={(user) => {
-                  setSelectedUser(user);
-                  setSearchInputValue(user.phone_number);
-                }}
-                onUnlock={handleUnlockAccount}
-              />
+              <UserDetailCard user={selectedUser} onUnlock={handleUserUnlock} />
             )}
 
             {selectedUser && transactions.length > 0 && (
               <UserTransactionsTable transactions={transactions} />
             )}
 
-            {searchResults.length === 0 && (
+            {matchedUsers.length === 0 && (
               <EmptyStateMessage
                 title="No users found"
                 message="No users match your search criteria. Try a different search term."
@@ -248,4 +298,6 @@ export default function Users() {
       ))}
     </Layout>
   );
-}
+};
+
+export default Users;

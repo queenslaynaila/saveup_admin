@@ -9,7 +9,7 @@ export type UserRole = 'Admin'| 'Standard' | 'Moderator';
 
 export type Gender = "Male"| "Female"
 
-export interface User {
+export type User = {
   id: number
   id_type: IdType
   id_number: string
@@ -20,4 +20,7 @@ export interface User {
   full_name: string
   phone_number: string
   created_at: string
+}
+export type UserWithPublicAttributes = User & {
+  last_login: string;
 }
