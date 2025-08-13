@@ -1,5 +1,5 @@
-import type { Group } from "../../types/groups.types"
-import api from "../config"
+import type { Group } from "../types/groups.types"
+import api from "./config"
 
 export const getGroups = async (userId:number): Promise<Group[]> => {
   try {

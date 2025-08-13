@@ -5,10 +5,10 @@ import { useEffect, useState } from "react"
 import Toast from "../components/Cards/Toast"
 import useToasts from "../hooks/useToast"
 import Loader from "../components/Loader"
-import { getGroups } from "../api/api/groups"
 import { useSearch } from "wouter"
 import { GroupsTable } from "../components/Tables/GroupsTable"
 import type { Group } from "../types/groups.types"
+import { getGroups } from "../api/groups"
 
 const containerStyles = css`
   padding: 24px;

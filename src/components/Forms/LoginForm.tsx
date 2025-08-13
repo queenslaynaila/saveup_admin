@@ -8,25 +8,30 @@ import { errorTextStyles, fontSizeStyles } from "../../styles/commonStyles"
 import Toast from "../Cards/Toast"
 import { signIn } from "../../api/auth"
 
-const formStyles = css`
+const PHONE_NUMBER_LENGTH = 10
+const PIN_LENGTH = 4
+const LOW_ATTEMPTS_THRESHOLD = 3
+
+
+const formContainerStyles = css`
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 `
 
-const inputGroupStyles = css`
+const fieldGroupStyles = css`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 `
 
-const labelStyles = css`
+const fieldLabelStyles = css`
   font-size: 0.9rem;
   font-weight: 500;
   color: ${TEXT_PRIMARY};
 `
 
-const inputStyles = css`
+const fieldInputStyles = css`
   padding: 0.75rem 1rem;
   border: 1px solid ${BORDER_COLOR};
   border-radius: 0.5rem;
@@ -40,7 +45,7 @@ const inputStyles = css`
   }
 `
 
-const buttonStyles = css`
+const submitButtonStyles = css`
   background-color: ${THEME_COLOR};
   color: white;
   padding: 0.75rem 1rem;
@@ -51,134 +56,170 @@ const buttonStyles = css`
   cursor: pointer;
   transition: all 0.2s ease;
   
-  &:hover {
+  &:hover:not(:disabled) {
     background-color: #00b89a;
   }
   
-  &:active {
+  &:active:not(:disabled) {
     transform: translateY(1px);
+  }
+  
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
   }
 `
 
+interface FormField {
+  value: string
+  error: string
+}
+
+interface LoginFormState {
+  phoneNumber: FormField
+  pin: FormField
+}
+
+// Validation functions
+const validatePhoneNumber = (value: string): string => {
+  if (value.length === 0) return ""
+  if (!/^\d+$/.test(value)) return "Phone number must contain only digits"
+  if (value.length !== PHONE_NUMBER_LENGTH) return `Must be exactly ${PHONE_NUMBER_LENGTH} digits`
+  return ""
+}
+
+const validatePin = (value: string): string => {
+  if (value.length === 0) return ""
+  if (!/^\d+$/.test(value)) return "PIN must contain only digits"
+  if (value.length !== PIN_LENGTH) return `Must be exactly ${PIN_LENGTH} digits`
+  return ""
+}
+
+const createAuthErrorMessage = (remainingAttempts: number): string => {
+  if (remainingAttempts <= LOW_ATTEMPTS_THRESHOLD && remainingAttempts >= 1) {
+    return `Invalid credentials. You have ${remainingAttempts} remaining attempt(s)`
+  }
+  return "Attempts exhausted. Please reset your PIN"
+}
+
 export function LoginForm() {
-  const [, setLocation] = useLocation()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [, navigateToLocation] = useLocation()
+  const [isSubmittingForm, setIsSubmittingForm] = useState(false)
   const { toasts, addToast, removeToast } = useToasts()
 
-  const [values, setValues] = useState<LoginData>({
-    phone_number: "",
-    pin: "",
+  const [formState, setFormState] = useState<LoginFormState>({
+    phoneNumber: { value: "", error: "" },
+    pin: { value: "", error: "" },
   })
 
-  const [formErrors, setFormErrors] = useState({
-    phone_number: "",
-    pin: "",
-  })
+  const updateField = (fieldName: keyof LoginFormState, value: string) => {
+    const validator = fieldName === 'phoneNumber' ? validatePhoneNumber : validatePin
+    const error = validator(value)
+    
+    setFormState(prevState => ({
+      ...prevState,
+      [fieldName]: { value, error }
+    }))
+  }
 
-  const handleInputChange = (
-    field: string,
-    value: string,
-    error: string | null
+  const isFormValid = (): boolean => {
+    const { phoneNumber, pin } = formState
+    return phoneNumber.value.length === PHONE_NUMBER_LENGTH && 
+           pin.value.length === PIN_LENGTH &&
+           !phoneNumber.error && 
+           !pin.error
+  }
+
+  const handleAuthError = (error) => {
+    const remainingAttempts = error.response?.data?.remaining_attempts ?? 0
+    const errorMessage = createAuthErrorMessage(remainingAttempts)
+    addToast(errorMessage, "error")
+  }
+
+  const handleFormSubmission = async (event: React.FormEvent) => {
+    event.preventDefault()
+    
+    if (isSubmittingForm || !isFormValid()) return
+
+    setIsSubmittingForm(true)
+
+    const loginCredentials: LoginData = {
+      phone_number: formState.phoneNumber.value,
+      pin: formState.pin.value,
+    }
+
+    try {
+      const authResult = await signIn(loginCredentials)
+      if (authResult === "success") {
+        navigateToLocation("/admin/users")
+      }
+    } catch (error) {
+      handleAuthError(error)
+    } finally {
+      setIsSubmittingForm(false)
+    }
+  }
+
+  const renderFieldGroup = (
+    fieldName: keyof LoginFormState,
+    label: string,
+    type: string,
+    placeholder: string,
+    maxLength: number
   ) => {
-    setValues((prev) => ({ ...prev, [field]: value }))
-    setFormErrors((prev) => ({ ...prev, [field]: error }))
-  }
-
-  const isValid = !formErrors.phone_number && !formErrors.pin;
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (isSubmitting) return
-
-    setIsSubmitting(true)
-    signIn(values)
-      .then((result) => {
-        if (result === "success") {
-          setLocation("/admin/users")
-        }
-      })
-      .catch((error) => {
-        const remAttempts = error.response.data.remaining_attempts
-
-        if (remAttempts <= 3 && remAttempts >= 1) {
-          addToast(
-            `Invalid Credentials. You have ${remAttempts} remaining attempt(s)`,
-            "error"
-          )
-        } else {
-          addToast("Attempts exhausted. Kindly reset your pin", "error")
-        }
-      })
-      .finally(() => {
-        setIsSubmitting(false)
-      })
-  }
-
-  return (
-   <>
-    <form className={formStyles}  onSubmit={handleSubmit}>
-      <div className={inputGroupStyles}>
-        <label className={labelStyles}>Phone Number</label>
+    const field = formState[fieldName]
+    
+    return (
+      <div className={fieldGroupStyles}>
+        <label className={fieldLabelStyles}>{label}</label>
         <input
-            type="tel"
-            className={inputStyles}
-            placeholder="0712345678"
-            pattern="[0-9]{10}"
-            title="Please enter exactly 10 digits"
-            value={values.phone_number}
-            maxLength={10}
-            required
-            onChange={(e) => {
-              const value = e.target.value
-              const error = value.length !== 10 ? "Must be 10 digits" : null
-              handleInputChange("phone_number", value, error)
-            }}
-          />
-          {formErrors.phone_number && (
-            <p className={cx(fontSizeStyles, errorTextStyles)}>
-              {formErrors.phone_number}
-            </p>
-          )}
-      </div>
-
-      <div className={inputGroupStyles}>
-        <label className={labelStyles}>Password</label>
-        <input
-          type="password"
-          className={inputStyles}
-          placeholder="Enter your pin"
-          maxLength={4}
-          value={values.pin}
+          type={type}
+          className={fieldInputStyles}
+          placeholder={placeholder}
+          maxLength={maxLength}
+          value={field.value}
           required
-          onChange={(e) => {
-            const value = e.target.value
-            const error = value.length !== 4 ? "Must be 4 digits" : null
-            handleInputChange("pin", value, error)
-          }}
+          onChange={(e) => updateField(fieldName, e.target.value)}
         />
-        {formErrors.phone_number && (
-          <p className={cx(fontSizeStyles, errorTextStyles)}>{formErrors.pin}</p>
+        {field.error && (
+          <p className={cx(fontSizeStyles, errorTextStyles)}>
+            {field.error}
+          </p>
         )}
       </div>
+    )
+  }
 
-      <button
-          type="submit"
-          className={buttonStyles}
-          disabled={!isValid || isSubmitting}
-        >
-          {isSubmitting ? "Signing In..." : "Sign In"}
-      </button>
-
-    </form>
-     {toasts.map((toast, i) => (
+  const renderToastNotifications = () => (
+    <>
+      {toasts.map((toast, index) => (
         <Toast
           key={toast.id}
-          index={i}
+          index={index}
           message={toast}
           onRemove={removeToast}
           isSuccess={toast.type === "success"}
         />
       ))}
-   </>
+    </>
+  )
+
+  return (
+    <>
+      <form className={formContainerStyles} onSubmit={handleFormSubmission}>
+        {renderFieldGroup("phoneNumber", "Phone Number", "tel", "0712345678", PHONE_NUMBER_LENGTH)}
+        {renderFieldGroup("pin", "PIN", "password", "Enter your PIN", PIN_LENGTH)}
+
+        <button
+          type="submit"
+          className={submitButtonStyles}
+          disabled={!isFormValid() || isSubmittingForm}
+        >
+          {isSubmittingForm ? "Signing In..." : "Sign In"}
+        </button>
+      </form>
+      
+      {renderToastNotifications()}
+    </>
   )
 }

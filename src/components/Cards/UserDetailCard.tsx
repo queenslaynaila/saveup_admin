@@ -3,7 +3,6 @@ import { Phone, MapPin, User, CreditCard, LogIn, Check, ChevronDown, X } from "l
 import { BORDER_COLOR, TEXT_PRIMARY } from "../../styles/colors"
 import type { User as UserType } from "../../types/user.types"
 import { useEffect, useRef, useState } from "react"
-import { getPocketsBalance } from "../../api/api/pockets"
 import useToasts from "../../hooks/useToast"
 import formatCurrency from "../../utils/formartCurrency"
 import Toast from "./Toast"
@@ -11,6 +10,7 @@ import { formatDate } from "../../utils/formartDate"
 import { updateUserAccountStatus } from "../../api/users"
 import type { UserWithPublicAttributes } from "../../views/Users"
 import { useLocation } from "wouter"
+import { getPocketsBalance } from "../../api/pockets"
 
 const cardStyles = css`
   background-color: white;

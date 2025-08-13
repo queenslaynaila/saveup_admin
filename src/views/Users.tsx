@@ -10,11 +10,11 @@ import { Header } from "../components/Layout/Header"
 import { searchUser, unlockUserAccount } from "../api/users"
 import { UserTransactionsTable } from "../components/Tables/UserTransactionsTable"
 import Loader from "../components/Loader"
-import { getTransactions } from "../api/api/transaction"
 import type { Transaction } from "../types/transaction.types"
 import Toast from "../components/Cards/Toast"
 import useToasts from "../hooks/useToast"
 import { normalizePhoneNumber } from "../utils/normalisePhone"
+import { getTransactions } from "../api/transaction"
 
 const containerStyles = css`
   padding: 24px;

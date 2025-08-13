@@ -1,6 +1,6 @@
-import { ACCESS_TOKEN, REFRESH_TOKEN,  USER } from "../../constants/strings";
-import type { LoginData, User } from "../../types/user.types";
-import { prependCountryCode } from "../../utils/validators";
+import { ACCESS_TOKEN, REFRESH_TOKEN, USER } from "../constants/strings";
+import type { LoginData, User } from "../types/user.types";
+import { prependCountryCode } from "../utils/validators";
 import api from "./config";
 
 export const signIn = async (
