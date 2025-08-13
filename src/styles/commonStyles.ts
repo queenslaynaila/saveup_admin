@@ -12,7 +12,6 @@ export const FlexRow = css`
   flex-direction: row;
 `;
 
-
 export const FlexBetweenCenter = css`
   display: flex;
   justify-content: space-between;
@@ -32,7 +31,7 @@ export const fontSizeStyles = css`
   }
 `;
 
-export const errorText = css`
+export const errorTextStyles = css`
   color:#dc233d;
   font-size: 0.7rem;
   font-weight: 500;

@@ -1,4 +1,4 @@
-type TransactionType = 
+export type TransactionType = 
   'Saving'|
   'Donations'|
   'Interest'|
@@ -10,7 +10,7 @@ type TransactionType =
   'Repayment'
 
 export interface Transaction  {
-  reference_id: number,
+  reference_id: string,
   slug:TransactionType,
   pocket_id: number,
   pocket_name:string,

@@ -131,6 +131,11 @@ export function GroupsTable({ groups }: GroupsTableProps) {
     setCurrentPage((prev) => Math.min(prev + 1, totalPages))
   }
 
+  const handleRowClick = (group: Group) => {
+
+    console.log("Row clicked:", group)
+  }
+
   return (
     <div className={cardWrapperStyles}>
       <div className={cardHeaderStyles}>
@@ -149,8 +154,8 @@ export function GroupsTable({ groups }: GroupsTableProps) {
               </tr>
             </thead>
             <tbody>
-              {groups.map((group, index) => (
-                <tr key={index} className={tableRowStyles}>
+              {groups.map((group) => (
+                <tr key={group.id} className={tableRowStyles} onClick={() => handleRowClick(group)}>
                   <td className={tableCellStyles}>
                     {group.name}
                   </td>

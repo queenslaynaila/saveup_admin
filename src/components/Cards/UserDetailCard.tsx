@@ -293,7 +293,7 @@ export function UserDetailCard({ user, OnUnlock}: UserDetailCardProps) {
 
   const { toasts, addToast, removeToast } = useToasts()
 
-  const [, navigate] = useLocation();
+  const [, setLocation] = useLocation();
 
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -355,22 +355,14 @@ export function UserDetailCard({ user, OnUnlock}: UserDetailCardProps) {
           <button
             className={unlockButtonStyles}
             style={{ backgroundColor: '#2563eb' }}
-            onClick={() =>
-              navigate('/admin/groups', {
-                state: { userId: user.id, userName: user.full_name }
-              })
-            }
+            onClick={() => setLocation(`/admin/pockets?userId=${user.id}`)}
           >
             Pockets
           </button>
            <button
             className={unlockButtonStyles}
             style={{backgroundColor: '#2563eb'}}
-            onClick={() =>
-              navigate('/admin/groups', {
-                state: { userId: user.id, userName: user.full_name }
-              })
-            }
+            onClick={() => setLocation(`/admin/groups?userId=${user.id}`)}
           >
             Groups
           </button>
