@@ -1,4 +1,6 @@
 export const formatDate = (dateString: string, type: 'full' | 'short' = 'full') => {
+  if (dateString === "") return "No records"
+  
   const date = new Date(dateString)
   
   const fullOptions: Intl.DateTimeFormatOptions = {
