@@ -57,7 +57,7 @@ type SidebarNavItem = {
 const sidebarNavItems: SidebarNavItem[] = [
   { href: "/admin/users", label: "Users", icon: FiUsers },
   { href: "/admin/stats", label: "Stats", icon: ImStatsBars2 },
-  { href: "/admin/moderators", label: "Moderators", icon: MdManageAccounts },
+  { href: "/admin/moderators", label: "CSR", icon: MdManageAccounts },
   { href: "/admin/pockets", label: "Pockets", icon: FiPocket },
   { href: "/admin/campaigns", label: "Campaigns", icon: FiTarget }
 ];

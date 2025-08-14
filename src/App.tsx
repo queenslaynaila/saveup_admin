@@ -5,6 +5,7 @@ import { Login } from "./views/Login";
 import Users from "./views/Users";
 import Groups from "./views/Groups";
 import { isAuthenticated } from "./utils/IsAuthenticated";
+import Moderators from "./views/Moderators";
 
 type ProtectedRouteProps = {
   component: React.FC;
@@ -29,6 +30,7 @@ const App: FC = () => {
 
         <ProtectedRoute path="/admin/users" component={Users}  />
         <ProtectedRoute path="/admin/groups" component={Groups} />
+        <ProtectedRoute path="/admin/moderators" component={Moderators} />
 
         <Route path="*">
           {isAuthenticated() ? <Redirect to="/admin/users" /> : <Redirect to="/log-in" />}
