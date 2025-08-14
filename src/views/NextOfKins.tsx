@@ -10,7 +10,7 @@ const container = css`
   }
 `
 
-export default function NexOfKina() {
+export default function NexOfKins() {
   return (
     <Layout>
       <div className={container}></div>
