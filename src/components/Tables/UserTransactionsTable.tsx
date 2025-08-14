@@ -1,20 +1,21 @@
 import { css, cx } from "@linaria/atomic"
-import { useState} from "react"
+import { useState, useEffect } from "react"
 import type { Transaction, TransactionType } from "../../types/transaction.types"
 import { formatDate } from "../../utils/formartDate"
 import { LIGHT_THEME_COLOR, THEME_COLOR } from "../../styles/colors"
+import { getTransactions } from "../../api/transaction"
 
 const cardWrapperStyles = css`
   width: 100%;
   margin-top: 2rem; 
   border-radius: 0.5rem;
   background-color: white;
-`
-
-const cardHeaderStyles = css`
-  padding: 1.5rem; 
   border-bottom: 1px solid #e5e7eb;
 `
+
+interface UserTransactionsTableProps {
+  userId: number;
+}
 
 const cardTitleStyles = css`
   font-size: 1.25rem; 
@@ -55,15 +56,6 @@ const selectBaseStyles = css`
 
   @media (min-width: 640px) { 
     width: 180px;
-  }
-`
-
-const dateInputBaseStyles = css`
-  padding: 0.625rem 1rem; 
-  border: 1px solid #d1d5db; 
-  border-radius: 0.375rem; 
-  @media (min-width: 640px) { 
-    width: 240px;
   }
 `
 
@@ -159,35 +151,28 @@ const paginationButtonStyles = css`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 2.5rem;  
-  height: 2.5rem;  
-  border: 1px solid #e5e7eb;  
-  border-radius: 0.375rem;  
-  background-color: white;
-  color: #3b82f6; 
-  cursor: pointer;
+  min-width: 4.5rem;
+  height: 2.5rem;
+  border: none;
+  border-radius: 0.375rem;
+  background-color: #3b82f6;
+  color: #fff;
   font-size: 1rem;
-  &:hover {
-    background-color: #f9fafb; 
+ 
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  box-shadow: 0 1px 2px rgba(59,130,246,0.08);
+  &:hover:not(:disabled) {
+    background-color: #2563eb;
+    color: #fff;
   }
   &:disabled {
-    color: #9ca3af; 
+    background-color: #e5e7eb;
+    color: #9ca3af;
     cursor: not-allowed;
-    background-color: white;
   }
-`
-
-const currentPageIndicatorStyles = css`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 2.5rem;
-  height: 2.5rem;  
-  border: 1px solid #e5e7eb; 
-  border-radius: 0.375rem;  
-  background-color: white;
-  color: #1f2937; 
-  font-weight: 500;  
 `
 
 const transactionTypes: Array<TransactionType | "All"> = [
@@ -203,51 +188,90 @@ const transactionTypes: Array<TransactionType | "All"> = [
   "Repayment",
 ]
 
-interface UserTransactionsTableProps {
-  transactions: Transaction[]
-}
+export const UserTransactionsTable: React.FC<UserTransactionsTableProps> = ({ userId }) => {
+  const [typeFilter, setTypeFilter] = useState<TransactionType | "All">("All")
+  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const PAGE_SIZE = 10;
+  const [isFirstPage, setIsFirstPage] = useState(true);
+  const [isLastPage, setIsLastPage] = useState(false);
+  const [lastQuery, setLastQuery] = useState<{ 
+    after?: number; 
+    before?: number; 
+    reset?: boolean 
+  }>({ reset: true });
+  const [initialMaxXid, setInitialMaxXid] = useState<number | null>(null);
 
-export function UserTransactionsTable({ transactions }: UserTransactionsTableProps) {
-  const [typeFilter, setTypeFilter] = useState("All")
-  const [dateFilter, setDateFilter] = useState<string>("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const fetchTransactions = async (params: { before?: number; after?: number; reset?: boolean } = {}) => {
+    setLoading(true)
+    setError(null)
+    const slug = typeFilter !== 'All' ? typeFilter as TransactionType : undefined;
+    getTransactions(userId, params.before, params.after, slug)
+      .then((transactions) => {
+        setTransactions(transactions)
+        if (params.reset || (!params.after && !params.before)) {
+          if (transactions.length > 0) {
+            setInitialMaxXid(Number(transactions[0].xid));
+          } else {
+            setInitialMaxXid(null);
+          }
+        }
+      })
+      .catch((error) => {
+        setError(error.message)
+      })
+      .finally(() => {
+        setLoading(false)
+      })
+  }
 
-  const filteredTransactions = transactions.filter((t) => {
-    const matchesType = typeFilter === "All" || t.slug === typeFilter
-    const matchesDate = !dateFilter || t.created_at.startsWith(dateFilter)
-    return matchesType && matchesDate
-  })
+  useEffect(() => {
+    setLastQuery({ reset: true });
+    fetchTransactions({ reset: true })
+  }, [userId, typeFilter])
 
-  const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
-  
-  const handleClearFilters = () => {
+  const handleClearFilters = (): void => {
     setTypeFilter("All")
-    setDateFilter("")
-    setCurrentPage(1)
   }
 
-  const handlePrevPage = () => {
-    setCurrentPage((prev) => Math.max(prev - 1, 1))
+  const handlePrevPage = (): void => {
+    if (transactions.length > 0) {
+      const after = transactions[0].xid;
+      setLastQuery({ after });
+      fetchTransactions({ after });
+    }
   }
 
-  const handleNextPage = () => {
-    setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+  const handleNextPage = (): void => {
+    if (transactions.length > 0) {
+      const before = transactions[transactions.length - 1].xid;
+      setLastQuery({ before });
+      fetchTransactions({ before });
+    }
   }
+
+  useEffect(() => {
+    if (transactions.length > 0 && initialMaxXid !== null) {
+      setIsFirstPage(transactions[0].xid === initialMaxXid);                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         
+    } else {
+      setIsLastPage(transactions.length < PAGE_SIZE);
+    }
+  }, [transactions, lastQuery, initialMaxXid]);
 
   return (
     <div className={cardWrapperStyles}>
-      <div className={cardHeaderStyles}>
+      <div>
         <h2 className={cardTitleStyles}>User Transactions</h2>
       </div>
 
       <div className={cardContentStyles}>
         <div className={filtersContainerStyles}>
           <div>
-            <select 
-              className={selectBaseStyles} 
-              value={typeFilter} 
-              onChange={(e) => setTypeFilter(e.target.value)}
+            <select
+              className={selectBaseStyles}
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value as TransactionType | "All")}
             >
               {transactionTypes.map((type) => (
                 <option key={type} value={type}>
@@ -257,87 +281,86 @@ export function UserTransactionsTable({ transactions }: UserTransactionsTablePro
             </select>
           </div>
 
-          <div>
-            <input
-              type="date"
-              className={dateInputBaseStyles}
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-            />
-          </div>
-
-          <button 
-            className={buttonBaseStyles} 
+          <button
+            className={buttonBaseStyles}
             onClick={handleClearFilters}
+            type="button"
           >
             Clear Filters
           </button>
         </div>
 
-        <div className={tableWrapperStyles}>
-          <table className={tableContainerStyles}>
-            <thead>
-              <tr className={tableHeaderStyles}>
-                <th className={tableHeaderCellStyles}>Pocket</th>
-                <th className={tableHeaderCellStyles}>Reference</th>
-                <th className={tableHeaderCellStyles}>Type</th>
-                <th className={tableHeaderCellStyles}>Delta</th>
-                <th className={tableHeaderCellStyles}>Balance</th>
-                <th className={cx(tableHeaderCellStyles, textRightStyles)}>Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredTransactions.map((transaction, index) => (
-                <tr key={index} className={tableRowStyles}>
-                  <td className={tableCellStyles}>
-                    {transaction.pocket_name}
-                  </td>
-                  <td className={tableCellStyles}>
-                    {transaction.reference_id.toUpperCase()}
-                  </td>
-                  <td className={tableCellStyles}>
-                    {transaction.slug}
-                  </td>
-                  <td className={cx(tableCellStyles, transaction.delta > 0 ? textGreenStyles : textRedStyles)}>
-                    {transaction.delta > 0 ? "+" : ""}
-                    {transaction.delta.toFixed(2)}
-                  </td>
-                  <td className={cx(tableCellStyles, textGreenStyles)}>
-                    {transaction.balance.toFixed(2)}
-                  </td>
-                  <td className={cx(tableCellStyles, textRightStyles, textGrayStyles)}>
-                    {formatDate(transaction.created_at)}
-                  </td>
+        {error && (
+          <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>
+        )}
+
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>Loading...</div>
+        ) : (
+          <div className={tableWrapperStyles}>
+            <table className={tableContainerStyles}>
+              <thead>
+                <tr className={tableHeaderStyles}>
+                  <th className={tableHeaderCellStyles}>Pocket</th>
+                  <th className={tableHeaderCellStyles}>Reference</th>
+                  <th className={tableHeaderCellStyles}>Type</th>
+                  <th className={tableHeaderCellStyles}>Delta</th>
+                  <th className={tableHeaderCellStyles}>Balance</th>
+                  <th className={cx(tableHeaderCellStyles, textRightStyles)}>Date</th>
                 </tr>
-              ))}
-              {filteredTransactions.length === 0 && (
-                <tr className={tableRowStyles}>
-                  <td colSpan={6} className={emptyStateCellStyles}>
-                    No transactions found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {transactions.length > 0 ? (
+                  transactions.map((transaction, index) => (
+                    <tr key={transaction.reference_id || index} className={tableRowStyles}>
+                      <td className={tableCellStyles}>{transaction.pocket_name}</td>
+                      <td className={tableCellStyles}>{transaction.reference_id.toUpperCase()}</td>
+                      <td className={tableCellStyles}>{transaction.slug}</td>
+                      <td className={cx(
+                        tableCellStyles,
+                        transaction.delta > 0 ? textGreenStyles : textRedStyles
+                      )}>
+                        {transaction.delta > 0 ? "+" : ""}
+                        {transaction.delta.toFixed(2)}
+                      </td>
+                      <td className={cx(tableCellStyles, textGreenStyles)}>
+                        {transaction.balance.toFixed(2)}
+                      </td>
+                      <td className={cx(tableCellStyles, textRightStyles, textGrayStyles)}>
+                        {formatDate(transaction.created_at)}
+                      </td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr className={tableRowStyles}>
+                    <td colSpan={6} className={emptyStateCellStyles}>
+                      No transactions found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        )}
 
         <div className={paginationContainerStyles}>
-          <button 
+          <button
             className={paginationButtonStyles}
             onClick={handlePrevPage}
-            disabled={currentPage === 1}
+            disabled={loading || isFirstPage}
+            type="button"
+            aria-label="Previous page"
           >
-            {"<"}
+            {"PREV"}
           </button>
-          <span className={currentPageIndicatorStyles}>
-            {currentPage}
-          </span>
-          <button 
+          <button
             className={paginationButtonStyles}
             onClick={handleNextPage}
-            disabled={currentPage === totalPages}
+            disabled={loading || isLastPage}
+            type="button"
+            aria-label="Next page"
           >
-            {">"}
+            {"NEXT"}
           </button>
         </div>
       </div>
