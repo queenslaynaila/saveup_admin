@@ -130,10 +130,11 @@ type UserSearchBarProps = {
   suggestions: UserWithPublicAttributes[];
   onSuggestionSelect: (user: UserWithPublicAttributes) => void;
   showSuggestions: boolean;
+  placeholder: string
 };
 
-const UserSearchBar: React.FC<UserSearchBarProps> = ({
-   value, onChange, suggestions, onSuggestionSelect, showSuggestions
+export const UserSearchBar: React.FC<UserSearchBarProps> = ({
+   value, onChange, suggestions, onSuggestionSelect, showSuggestions, placeholder
 }) => (
   <div className={searchContainerStyles}>
     <div className={searchWrapperStyles}>
@@ -141,7 +142,7 @@ const UserSearchBar: React.FC<UserSearchBarProps> = ({
       <input
         type="text"
         className={searchInputStyles}
-        placeholder="Search by phone number or ID number"
+        placeholder={placeholder}
         value={value}
         onChange={e => onChange(e.target.value)}
       />
@@ -238,6 +239,7 @@ const Users: React.FC = () => {
           value={searchQuery}
           onChange={setSearchQuery}
           isLoading={isLoading}
+          placeholder="Search by phone or id number"
           suggestions={matchedUsers}
           onSuggestionSelect={user => {
             setSelectedUser(user);
