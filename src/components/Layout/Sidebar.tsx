@@ -1,4 +1,4 @@
-import { css } from "@linaria/core"
+import { css, cx } from "@linaria/core"
 import { Link, useLocation } from "wouter"
 import { FiUsers, FiPocket, FiTarget } from "react-icons/fi"
 import { ImStatsBars2 } from "react-icons/im";
@@ -71,7 +71,12 @@ const Sidebar: React.FC = () => {
     <aside className={sidebarContainerStyles}>
       <ul className={navListStyles}>
         {sidebarNavItems.map((item) => (
-          <li className={`${navItemStyles} ${isNavItemActive(item.href) ? activeNavItemStyles : ""}`}>
+          <li key={item.href} 
+              className={cx(
+                navItemStyles,isNavItemActive(item.href) 
+                && activeNavItemStyles
+              )}
+            >
             <Link href={item.href} className={navLinkStyles}>
               <item.icon size={20} />
               <span>{item.label}</span>
