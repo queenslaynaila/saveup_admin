@@ -16,10 +16,14 @@ export const signIn = async (
   const response = await api.post("/auth/login", data);
 
   const authorizationToken = response.headers.authorization || "";
-  const refreshToken = response.headers.refresh|| "";
+  const refreshToken = response.headers.refresh || "";
 
   const user: User = response.data;
-  
+
+  if (user.role === "Standard") {
+    throw new Error("Anauthorised");
+  }
+
   localStorage.setItem(REFRESH_TOKEN, refreshToken);
   localStorage.setItem(ACCESS_TOKEN, authorizationToken);
   localStorage.setItem(USER, JSON.stringify(user));
