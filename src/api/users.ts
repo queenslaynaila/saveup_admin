@@ -1,5 +1,15 @@
-import type { UserWithPublicAttributes } from "../types/user.types"
+import type { User, UserRole, UserWithPublicAttributes } from "../types/user.types"
 import api from "./config"
+
+export const updateRole = async (userId: number | string, role: UserRole): Promise<void> => {
+  try {
+    const response = await api.patch(`users/${userId}/role`, { role });
+    if (response.status === 204) return;
+    throw new Error("Failed to update user role");
+  } catch (error) {
+    return Promise.reject(error);
+  }
+};
 
 export const searchUser = async (searchValue: string): Promise<UserWithPublicAttributes[]>  => {
   try {
@@ -13,6 +23,19 @@ export const searchUser = async (searchValue: string): Promise<UserWithPublicAtt
   } catch (error) {
     return Promise.reject(error)
   }
+}
+
+export const getModerators = async (): Promise<Omit<User, 'pin'>[]> => {
+  try {
+    const response = await api.get(`users/moderators`)
+    if (response.status === 200){
+      return response.data
+    }
+    throw new Error("Failed to fetch moderators")
+  } catch (error) {
+    return Promise.reject(error)
+  }
+
 }
 
 export const unlockUserAccount = async (
