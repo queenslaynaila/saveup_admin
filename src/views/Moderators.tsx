@@ -218,7 +218,7 @@ const Moderators: React.FC = () => {
         />
 
         <UserSearchBar
-          placeholder="Search a user by phone number to make a moderator"
+          placeholder="Search by phone number to change user role"
           value={searchQuery}
           onChange={setSearchQuery}
           isLoading={isLoading}
