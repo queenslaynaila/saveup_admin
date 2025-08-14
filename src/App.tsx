@@ -3,7 +3,7 @@ import { Route, Switch, Redirect } from "wouter";
 import Loader from "./components/Loader";
 import { Login } from "./views/Login";
 import Users from "./views/Users";
-import Groups from "./views/Groups";
+import Stats from "./views/Stats";
 import { isAuthenticated } from "./utils/IsAuthenticated";
 import Moderators from "./views/Moderators";
 
@@ -29,7 +29,7 @@ const App: FC = () => {
         </Route>
 
         <ProtectedRoute path="/admin/users" component={Users}  />
-        <ProtectedRoute path="/admin/groups" component={Groups} />
+        <ProtectedRoute path="/admin/stats" component={Stats} />
         <ProtectedRoute path="/admin/moderators" component={Moderators} />
 
         <Route path="*">
