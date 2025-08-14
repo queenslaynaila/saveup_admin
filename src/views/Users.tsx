@@ -1,4 +1,4 @@
-import { css, cx } from "@linaria/atomic";
+import { css} from "@linaria/atomic";
 import { Layout } from "../components/Layout/DashboardLayout";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
