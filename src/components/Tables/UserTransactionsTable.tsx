@@ -193,7 +193,6 @@ export const UserTransactionsTable: React.FC<UserTransactionsTableProps> = ({ us
   const [transactions, setTransactions] = useState<Transaction[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const PAGE_SIZE = 10;
   const [isFirstPage, setIsFirstPage] = useState(true);
   const [isLastPage, setIsLastPage] = useState(false);
   const [lastQuery, setLastQuery] = useState<{ 
@@ -202,6 +201,8 @@ export const UserTransactionsTable: React.FC<UserTransactionsTableProps> = ({ us
     reset?: boolean 
   }>({ reset: true });
   const [initialMaxXid, setInitialMaxXid] = useState<number | null>(null);
+
+  const PAGE_SIZE = 10;
 
   const fetchTransactions = async (params: { before?: number; after?: number; reset?: boolean } = {}) => {
     setLoading(true)
