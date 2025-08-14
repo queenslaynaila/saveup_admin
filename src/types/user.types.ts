@@ -21,6 +21,7 @@ export type User = {
   phone_number: string
   created_at: string
 }
+
 export type UserWithPublicAttributes = User & {
   last_login: string;
 }

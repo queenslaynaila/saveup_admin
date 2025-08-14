@@ -17,7 +17,7 @@ export type NonTransactionSubType =
   | "Invitation Received"
   | "Next of Kin Update"
 
-export interface UserActivity {
+export type UserActivity = {
   id: number
   userId: number
   type: ActivityType

@@ -10,6 +10,7 @@ export type TransactionType =
   'Repayment'
 
 export interface Transaction  {
+  xid:number;
   reference_id: string,
   slug:TransactionType,
   pocket_id: number,
