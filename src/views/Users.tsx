@@ -1,5 +1,4 @@
 import { css} from "@linaria/atomic";
-import { Layout } from "../components/Layout/DashboardLayout";
 import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { UserWithPublicAttributes } from "../types/user.types";
@@ -15,6 +14,7 @@ import useToasts from "../hooks/useToast";
 import { normalizePhoneNumber } from "../utils/normalisePhone";
 import { getTransactions } from "../api/transaction";
 import { UNLOCK_NOTE } from "../constants/strings";
+import DashboardLayout from "../components/Layout/DashboardLayout";
 
 const containerStyles = css`
   padding: 24px; width: 100%; 
@@ -231,7 +231,7 @@ const Users: React.FC = () => {
   };
 
   return (
-    <Layout>
+    <DashboardLayout>
       <div className={containerStyles}>
         <Header heading="Users" description="Manage and view user details and activity." />
         <UserSearchBar
@@ -284,7 +284,7 @@ const Users: React.FC = () => {
           isSuccess={toast.type === "success"}
         />
       ))}
-    </Layout>
+    </DashboardLayout>
   );
 };
 

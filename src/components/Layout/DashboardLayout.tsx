@@ -2,8 +2,14 @@ import { useState } from "react"
 import type React from "react"
 import { css, cx } from "@linaria/core"
 import { Menu } from "lucide-react"
-import { Sidebar } from "./Sidebar"
-import { BG_CARD_COLOR, BORDER_COLOR, SHADOW_MEDIUM, TEXT_PRIMARY, THEME_COLOR } from "../../styles/colors"
+import Sidebar from "./Sidebar"
+import { 
+  BG_CARD_COLOR, 
+  BORDER_COLOR, 
+  SHADOW_MEDIUM, 
+  TEXT_PRIMARY, 
+  THEME_COLOR 
+} from "../../styles/colors"
 import { FlexBetweenCenter, FlexCenter } from "../../styles/commonStyles"
 import { useLocation } from "wouter"
 import { getUserData, signOut } from "../../api/auth"
@@ -117,65 +123,78 @@ const dropdownMenuItemStyles = css`
     background-color: #f8f9fa;
   }
 `
-interface LayoutProps {
-  children: React.ReactNode
-}
+type LayoutProps = {
+  children: React.ReactNode;
+};
 
-export function Layout({ children }: LayoutProps) {
-  const [, setLocation] = useLocation()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
-  const userName = getUserData()?.full_name;
+const getUserInitials = (name: string) => name ? name.slice(0, 2).toUpperCase() : "AD";
 
-  const getInitials = (name: string) => {
-    return name.slice(0, 2).toUpperCase()
-  }
+const UserAvatarMenu: React.FC<{
+  userName: string;
+  isDropdownOpen: boolean;
+  onToggleDropdown: () => void;
+  onSignOut: (e: React.MouseEvent) => void;
+}> = ({ userName, isDropdownOpen, onToggleDropdown, onSignOut }) => (
+  <div className={avatarContainerStyles}>
+    <button className={avatarStyles} onClick={onToggleDropdown}>
+      {getUserInitials(userName)}
+    </button>
+    {isDropdownOpen && (
+      <div className={dropdownMenuStyles}>
+        <button className={dropdownMenuItemStyles} onClick={onSignOut}>
+          Sign Out
+        </button>
+      </div>
+    )}
+  </div>
+);
 
-  const handleSignOut = (e: React.MouseEvent) => {
-    e.preventDefault()
-    setIsDropdownOpen(false)
-    signOut()
-     .then((status) => {
-        if (status === 204) {
-          setLocation("/log-in")
-        }
-      })
-  }
+const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
+  const [, setLocation] = useLocation();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const userName = getUserData()!.full_name;
 
-   const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen)
-  }
+  const handleSignOutClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDropdownOpen(false);
+    signOut().then((status) => {
+      if (status === 204) {
+        setLocation("/log-in");
+      }
+    });
+  };
+
+  const handleToggleDropdown = () => setIsDropdownOpen((open) => !open);
 
   return (
     <div className={layoutContainerStyles}>
       <header className={cx(dashheaderStyles, FlexBetweenCenter)}>
-        <div className={FlexCenter} style={{gap:"8px"}}>
-          <button 
-            className={menuButtonStyles} 
-            onClick={() => setSidebarOpen(!sidebarOpen)} aria-label="Toggle menu">
+        <div className={FlexCenter} style={{ gap: "8px" }}>
+          <button
+            className={menuButtonStyles}
+            onClick={() => setIsSidebarOpen((open) => !open)}
+            aria-label="Toggle menu"
+          >
             <Menu size={24} />
           </button>
           <h2 className={headerTitleStyles}>Admin Dashboard</h2>
         </div>
-        <div className={avatarContainerStyles}>
-          <button className={avatarStyles} onClick={toggleDropdown} >
-              {userName ? getInitials(userName) : 'AD'}
-          </button>
-          {isDropdownOpen && (
-            <div className={dropdownMenuStyles}>
-              <button className={dropdownMenuItemStyles} onClick={handleSignOut}>
-                Sign Out
-              </button>
-            </div>
-          )}
-        </div>
+        <UserAvatarMenu
+          userName={userName}
+          isDropdownOpen={isDropdownOpen}
+          onToggleDropdown={handleToggleDropdown}
+          onSignOut={handleSignOutClick}
+        />
       </header>
       <div className={mainContentStyles}>
-        <div className={cx(sidebarWrapperStyles, sidebarOpen && sidebarVisibleStyles)}>
+        <div className={cx(sidebarWrapperStyles, isSidebarOpen && sidebarVisibleStyles)}>
           <Sidebar />
         </div>
         <main className={pageContentStyles}>{children}</main>
       </div>
     </div>
-  )
-}
+  );
+};
+
+export default DashboardLayout;

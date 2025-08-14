@@ -1,5 +1,5 @@
 import { css } from "@linaria/atomic"
-import { Layout } from "../components/Layout/DashboardLayout"
+import DashboardLayout from "../components/Layout/DashboardLayout"
 import { Header } from "../components/Layout/Header"
 import { useEffect, useState } from "react"
 import Toast from "../components/Cards/Toast"
@@ -44,7 +44,7 @@ export default function Groups() {
     }, [userId, addToast])
     
   return (
-    <Layout>
+    <DashboardLayout>
       <div className={containerStyles}>
         <Header heading="Groups" description="Manage and view groups." />     
         <GroupsTable groups={groups}/>
@@ -61,6 +61,6 @@ export default function Groups() {
           isSuccess={toast.type === "success"} 
         />
       ))}
-    </Layout>
+    </DashboardLayout>
   )
 }

@@ -1,5 +1,5 @@
 import { css } from "@linaria/atomic"
-import { Layout } from "../components/Layout/DashboardLayout"
+import DashboardLayout from "../components/Layout/DashboardLayout"
 
 const container = css`
   padding: 24px;
@@ -12,8 +12,8 @@ const container = css`
 
 export default function NexOfKins() {
   return (
-    <Layout>
+    <DashboardLayout>
       <div className={container}></div>
-    </Layout>
+    </DashboardLayout>
   )
 }
