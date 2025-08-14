@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter"
 import { FiUsers, FiPocket, FiTarget } from "react-icons/fi"
 import { ImStatsBars2 } from "react-icons/im";
 import { MdManageAccounts } from "react-icons/md";
+import { RiAwardLine } from "react-icons/ri";
 
 const sidebarContainerStyles = css`
   width: 240px;
@@ -57,6 +58,7 @@ type SidebarNavItem = {
 const sidebarNavItems: SidebarNavItem[] = [
   { href: "/admin/users", label: "Users", icon: FiUsers },
   { href: "/admin/stats", label: "Stats", icon: ImStatsBars2 },
+  { href: "/admin/commissions", label: "Commissions", icon: RiAwardLine },
   { href: "/admin/moderators", label: "CSR", icon: MdManageAccounts },
   { href: "/admin/pockets", label: "Pockets", icon: FiPocket },
   { href: "/admin/campaigns", label: "Campaigns", icon: FiTarget }
