@@ -4,7 +4,6 @@ import Loader from "./components/Loader";
 import { Login } from "./views/Login";
 import Users from "./views/Users";
 import Groups from "./views/Groups";
-import Pockets from "./views/Pockets";
 import { isAuthenticated } from "./utils/IsAuthenticated";
 
 type ProtectedRouteProps = {
@@ -30,7 +29,6 @@ const App: FC = () => {
 
         <ProtectedRoute path="/admin/users" component={Users}  />
         <ProtectedRoute path="/admin/groups" component={Groups} />
-        <ProtectedRoute path="/admin/pockets" component={Pockets} />
 
         <Route path="*">
           {isAuthenticated() ? <Redirect to="/admin/users" /> : <Redirect to="/log-in" />}
