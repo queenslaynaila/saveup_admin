@@ -1,7 +1,8 @@
 import { css } from "@linaria/core"
 import { Link, useLocation } from "wouter"
-import { FaUserGroup } from "react-icons/fa6";
 import { FiUsers, FiPocket, FiTarget } from "react-icons/fi"
+import { ImStatsBars2 } from "react-icons/im";
+import { MdManageAccounts } from "react-icons/md";
 
 const sidebarContainerStyles = css`
   width: 240px;
@@ -47,35 +48,39 @@ const navLinkStyles = css`
   }
 `
 
-export function Sidebar() {
-  const [location] = useLocation()
+type SidebarNavItem = {
+  href: string;
+  label: string;
+  icon: React.ComponentType<{ size?: number }>;
+};
 
-  const isActive = (path: string) => {
-    if (path === "/admin/dashboard" && location === path) {
-      return true
-    }
-    return path !== "/admin/dashboard" && location.startsWith(path)
-  }
+const sidebarNavItems: SidebarNavItem[] = [
+  { href: "/admin/users", label: "Users", icon: FiUsers },
+  { href: "/admin/stats", label: "Stats", icon: ImStatsBars2 },
+  { href: "/admin/moderators", label: "Moderators", icon: MdManageAccounts },
+  { href: "/admin/pockets", label: "Pockets", icon: FiPocket },
+  { href: "/admin/campaigns", label: "Campaigns", icon: FiTarget }
+];
 
-  const navItems = [       
-    { href: "/admin/users", label: "Users", icon: FiUsers },      
-    { href: "/admin/groups", label: "Groups", icon: FaUserGroup },         
-    { href: "/admin/pockets", label: "Pockets", icon: FiPocket },    
-    { href: "/admin/campaigns", label: "Campaigns", icon: FiTarget }    
-  ]
+const Sidebar: React.FC = () => {
+  const [currentLocation] = useLocation();
+
+  const isNavItemActive = (path: string) => currentLocation === path;
 
   return (
     <aside className={sidebarContainerStyles}>
       <ul className={navListStyles}>
-        {navItems.map(({ href, label, icon: Icon }) => (
-          <li key={href} className={`${navItemStyles} ${isActive(href) ? activeNavItemStyles : ""}`}>
-            <Link href={href} className={navLinkStyles}>
-              <Icon size={20} />
-              <span>{label}</span>
+        {sidebarNavItems.map((item) => (
+          <li className={`${navItemStyles} ${isNavItemActive(item.href) ? activeNavItemStyles : ""}`}>
+            <Link href={item.href} className={navLinkStyles}>
+              <item.icon size={20} />
+              <span>{item.label}</span>
             </Link>
           </li>
         ))}
       </ul>
     </aside>
-  )
-}
+  );
+};
+
+export default Sidebar;
