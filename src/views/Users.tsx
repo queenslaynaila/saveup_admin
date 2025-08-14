@@ -16,7 +16,6 @@ import { normalizePhoneNumber } from "../utils/normalisePhone";
 import { getTransactions } from "../api/transaction";
 import { UNLOCK_NOTE } from "../constants/strings";
 
-
 const containerStyles = css`
   padding: 24px; width: 100%; 
   @media (max-width: 768px) { 
@@ -24,9 +23,6 @@ const containerStyles = css`
   }
 `;
 
-const backButtonStyles = css`
-  margin-bottom: 1rem;
-`;
 
 const searchContainerStyles = css`
   display: flex; 
@@ -194,7 +190,6 @@ const Users: React.FC = () => {
   const { toasts, addToast, removeToast } = useToasts();
 
   const isLoading = isSearching || isFetchingTransactions;
-  const isBackButtonVisible = selectedUser && matchedUsers.length > 1;
   const showSearchResults = lastSearchedQuery && !isLoading;
 
   useEffect(() => {
@@ -239,13 +234,6 @@ const Users: React.FC = () => {
     <Layout>
       <div className={containerStyles}>
         <Header heading="Users" description="Manage and view user details and activity." />
-
-        {isBackButtonVisible && (
-          <button onClick={() => setSelectedUser(null)} className={cx(backButtonStyles, containerStyles)}>
-            Back
-          </button>
-        )}
-
         <UserSearchBar
           value={searchQuery}
           onChange={setSearchQuery}
@@ -265,7 +253,7 @@ const Users: React.FC = () => {
             )}
 
             {selectedUser && transactions.length > 0 && (
-              <UserTransactionsTable transactions={transactions} />
+              <UserTransactionsTable userId={selectedUser?.id} />
             )}
 
             {matchedUsers.length === 0 && (
