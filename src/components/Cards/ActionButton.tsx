@@ -5,10 +5,14 @@ import type { IconType } from "react-icons"
 const baseButtonStyles = css`
   border-radius: 0.5rem;
   transition: all 0.2s ease-in-out;
+  outline: none;
+  border: none;
 `
 
 const iconOnlyButtonStyles = css`
   transition: all 0.2s ease-in-out;
+  outline: none;
+  border: none;
 `
 
 const primaryButtonStyles = css`
