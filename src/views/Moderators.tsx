@@ -227,8 +227,7 @@ const Moderators: React.FC = () => {
       <div className={containerStyles}>
         <Header
           heading="Customer Service Roles"
-          description="Manage and organize customer-facing team. 
-          Promote or demote users and search by phone number to assign roles as needed."
+          description="Manage and organize user roles."
         />
 
         <UserSearchBar
