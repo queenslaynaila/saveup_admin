@@ -130,7 +130,7 @@ const UserRoleUpdateSection = ({
   );
 };
 
-const EmptyStateMessage = ({ title, message }: { title: string; message: string }) => (
+export const EmptyStateMessage = ({ title, message }: { title: string; message: string }) => (
   <div className={emptyStateStyles}>
     <h3>{title}</h3>
     <p>{message}</p>
@@ -218,7 +218,7 @@ const Moderators: React.FC = () => {
         />
 
         <UserSearchBar
-          placeholder="Search by phone number to change user role"
+          placeholder="Search by phone number or id number to update user role"
           value={searchQuery}
           onChange={setSearchQuery}
           isLoading={isLoading}
