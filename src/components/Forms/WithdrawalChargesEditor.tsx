@@ -115,9 +115,10 @@ const inputStyles = css`
 `
 
 const examplesContainerStyles = css`
-  background-color: #f9fafb;
+  background-color: #d7d9dc;
   padding: 0.75rem;
   border-radius: 0.5rem;
+  margin-top: 1rem;
 `
 
 const examplesHeaderStyles = css`
