@@ -225,7 +225,6 @@ const Moderators: React.FC = () => {
           suggestions={matchedUsers}
           onSuggestionSelect={user => {
             setSelectedUser(user);
-            setSearchQuery(user.phone_number);
           }}
           showSuggestions={!selectedUser}
         />
