@@ -83,6 +83,20 @@ const pointerCursor = css`
   cursor: pointer;
 `;
 
+const spanStyles = css`
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: #090909;
+  margin-left: 8px;
+`;
+
+const tagStyles = css`
+  font-weight: 400;
+  font-size: 0.95rem; 
+  color: #64748b; 
+  margin-left: 0.5rem;
+`
+
 type UserRoleUpdateSectionProps = {
   user: UserWithPublicAttributes;
   selectedRole: UserRole | "";
@@ -250,9 +264,17 @@ const Moderators: React.FC = () => {
         )}
 
         {!isLoading && !error && moderators.length > 0 && (
-          <UserTable
-            users={moderators}
-          />
+          <>
+            <div className={spanStyles}>
+              Moderators List
+              <span className={tagStyles}>
+                (All users with moderator privileges)
+              </span>
+            </div>
+            <UserTable
+              users={moderators}
+            />
+          </>
         )}
 
       </div>
