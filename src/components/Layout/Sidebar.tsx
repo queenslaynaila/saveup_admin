@@ -1,9 +1,10 @@
 import { css, cx } from "@linaria/core"
 import { Link, useLocation } from "wouter"
-import { FiUsers, FiPocket, FiTarget } from "react-icons/fi"
+import { FiUsers, FiTarget } from "react-icons/fi"
 import { ImStatsBars2 } from "react-icons/im";
 import { MdManageAccounts } from "react-icons/md";
 import { RiAwardLine } from "react-icons/ri";
+import { IoSettingsOutline } from "react-icons/io5";
 
 const sidebarContainerStyles = css`
   width: 240px;
@@ -60,7 +61,7 @@ const sidebarNavItems: SidebarNavItem[] = [
   { href: "/admin/stats", label: "Stats", icon: ImStatsBars2 },
   { href: "/admin/commissions", label: "Commissions", icon: RiAwardLine },
   { href: "/admin/moderators", label: "CSR", icon: MdManageAccounts },
-  { href: "/admin/pockets", label: "Pockets", icon: FiPocket },
+  { href: "/admin/configurations", label: "Configurations", icon: IoSettingsOutline },
   { href: "/admin/campaigns", label: "Campaigns", icon: FiTarget }
 ];
 
