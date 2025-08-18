@@ -2,19 +2,25 @@
 import api from "./config"
 
 export const getAuthenticationStats = async (
-    startDate: string,
-    endDate: string
+    startDate?: string,
+    endDate?: string,
+    country?: string
 ): Promise<{
     total_registrations: number,
-    total_logins: number,
+    total_succesful_logins: number,
     total_failed_logins: number,
-    locked_accounts: number
+    locked_accounts: number,
+    suspended_accounts: number,
+    active_accounts: number,
+    inactive_accounts: number,
+    dormant_accounts: number
 }> => {
     try {
         const params = [];
 
         if (startDate !== undefined) params.push(`start_date=${startDate}`);
         if (endDate !== undefined) params.push(`end_date=${endDate}`);
+        if (country !== undefined) params.push(`country=${country}`);
 
         const queryString = params.length ? `?${params.join("&")}` : "";
         const response = await api.get(`stats/auth-metrics${queryString}`);
@@ -30,9 +36,10 @@ export const getAuthenticationStats = async (
 };
 
 export const getExpensesStats = async (
-    startDate: string,
-    endDate: string,
-    agg: 'avg' | 'sum' | 'count' | 'min' | 'max'
+    agg: 'avg' | 'sum' | 'count' | 'min' | 'max',
+    startDate?: string,
+    endDate?: string,
+    country?: string,
 ): Promise<{
     aggregated_expenses: number,
 }> => {
@@ -41,7 +48,8 @@ export const getExpensesStats = async (
 
         if (startDate !== undefined) params.push(`start_date=${startDate}`);
         if (endDate !== undefined) params.push(`end_date=${endDate}`);
-        if (agg !== undefined) params.push(`agg=${agg}`);
+        if (country !== undefined) params.push(`country=${country}`)
+        params.push(`agg=${agg}`);
 
         const queryString = params.length ? `?${params.join("&")}` : "";
         const response = await api.get(`stats/expenses${queryString}`);
@@ -56,9 +64,9 @@ export const getExpensesStats = async (
 };
 
 export const getSavingStats = async (
-    startDate: string,
-    endDate: string,
-    agg: 'avg' | 'sum' | 'count' | 'min' | 'max'
+    agg: 'avg' | 'sum' | 'count' | 'min' | 'max',
+    startDate?: string,
+    endDate?: string,
 ): Promise<{
     aggregated_savings: number,
 }> => {
@@ -67,7 +75,7 @@ export const getSavingStats = async (
 
         if (startDate !== undefined) params.push(`start_date=${startDate}`);
         if (endDate !== undefined) params.push(`end_date=${endDate}`);
-        if (agg !== undefined) params.push(`agg=${agg}`);
+        params.push(`agg=${agg}`);
 
         const queryString = params.length ? `?${params.join("&")}` : "";
         const response = await api.get(`stats/savings${queryString}`);
@@ -91,7 +99,7 @@ export const getWithdrawalStats = async (
 
         if (startDate !== undefined) params.push(`start_date=${startDate}`);
         if (endDate !== undefined) params.push(`end_date=${endDate}`);
-        if (agg !== undefined) params.push(`agg=${agg}`);
+        params.push(`agg=${agg}`);
 
         const queryString = params.length ? `?${params.join("&")}` : "";
         const response = await api.get(`stats/${queryString}`);
