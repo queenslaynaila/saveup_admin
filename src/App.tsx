@@ -6,6 +6,9 @@ import Users from "./views/Users";
 import Stats from "./views/Stats";
 import { isAuthenticated } from "./utils/IsAuthenticated";
 import Moderators from "./views/Moderators";
+import Commissions from "./views/Commissions";
+import Configurations from "./views/Configurations";
+import Campaigns from "./views/Campaigns";
 
 type ProtectedRouteProps = {
   component: React.FC;
@@ -31,6 +34,9 @@ const App: FC = () => {
         <ProtectedRoute path="/admin/users" component={Users}  />
         <ProtectedRoute path="/admin/stats" component={Stats} />
         <ProtectedRoute path="/admin/moderators" component={Moderators} />
+        <ProtectedRoute path="/admin/commissions" component={Commissions} />
+        <ProtectedRoute path="/admin/configurations" component={Configurations} />
+        <ProtectedRoute path="/admin/campaigns" component={Campaigns} />
 
         <Route path="*">
           {isAuthenticated() ? <Redirect to="/admin/users" /> : <Redirect to="/log-in" />}
