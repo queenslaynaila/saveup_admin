@@ -87,7 +87,7 @@ const spanStyles = css`
   font-weight: 700;
   font-size: 0.95rem;
   color: #090909;
-  margin-left: 8px;
+  margin-left: 0.5rem;
 `;
 
 const tagStyles = css`
