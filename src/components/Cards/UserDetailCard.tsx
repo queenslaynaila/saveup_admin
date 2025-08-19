@@ -8,7 +8,6 @@ import formatCurrency from "../../utils/formartCurrency"
 import Toast from "./Toast"
 import { formatDate } from "../../utils/formartDate"
 import { updateUserAccountStatus } from "../../api/users"
-import { useLocation } from "wouter"
 import { getPocketsBalance } from "../../api/pockets"
 
 const cardStyles = css`
@@ -292,8 +291,6 @@ export function UserDetailCard({ user, onUnlock}: UserDetailCardProps) {
 
   const { toasts, addToast, removeToast } = useToasts()
 
-  const [, setLocation] = useLocation();
-
   const dropdownRef = useRef<HTMLDivElement>(null)
 
   const handleAccountStatusChange = (
@@ -351,20 +348,6 @@ export function UserDetailCard({ user, onUnlock}: UserDetailCardProps) {
           ))}
         </div>
         <div className={buttonContainerStyles}>
-          <button
-            className={unlockButtonStyles}
-            style={{ backgroundColor: '#2563eb' }}
-            onClick={() => setLocation(`/admin/pockets?userId=${user.id}`)}
-          >
-            Pockets
-          </button>
-           <button
-            className={unlockButtonStyles}
-            style={{backgroundColor: '#2563eb'}}
-            onClick={() => setLocation(`/admin/groups?userId=${user.id}`)}
-          >
-            Groups
-          </button>
           <button
             className={unlockButtonStyles}
             onClick={() => { onUnlock(user) }}
