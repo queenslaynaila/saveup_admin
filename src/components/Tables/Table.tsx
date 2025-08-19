@@ -86,9 +86,6 @@ export type TableProps<T> = {
   columns: TableColumnConfig<T>[]
   filters?: TableFilterConfig[]
   pagination?: TablePaginationConfig
-  loading?: boolean
-  error?: string | null
-  emptyMessage?: string
   onClearFilters?: () => void
   isBorderless?: boolean
 }
