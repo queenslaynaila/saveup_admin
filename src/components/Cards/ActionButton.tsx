@@ -71,8 +71,8 @@ const buttonContentStyles = css`
 `
 
 const iconStyles = css`
-  width: 1rem;
-  height: 1rem;
+  width: 1.25rem;
+  height: 1.25rem;
 `
 
 interface ActionButtonProps {
