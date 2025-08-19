@@ -1,17 +1,22 @@
-import { css, cx} from "@linaria/atomic";
+import { css, cx } from "@linaria/atomic";
+import { useState, useEffect, useMemo } from "react";
+import DashboardLayout from "../components/Layout/DashboardLayout";
 import { Header } from "../components/Layout/Header";
 import Loader from "../components/Loader";
 import Toast from "../components/Cards/Toast";
 import useToasts from "../hooks/useToast";
-import DashboardLayout from "../components/Layout/DashboardLayout";
-import { useState, useEffect } from "react";
 import { BORDER_COLOR, TEXT_PRIMARY } from "../styles/colors";
-import type { User, UserWithPublicAttributes } from "../types/user.types";
-import type { UserRole } from "../types/user.types";
+import type { User, UserWithPublicAttributes, UserRole } from "../types/user.types";
 import { getModerators, searchUser, updateRole } from "../api/users";
-import UserTable from "../components/Tables/UserTable";
 import { UserSearchBar } from "./Users";
 import { normalizePhoneNumber } from "../utils/normalisePhone";
+import Table, {
+  type TableColumnConfig,
+  type TableFilterConfig,
+  type TablePaginationConfig,
+} from "../components/Tables/Table";
+import { SectionHeader } from "../components/Cards/SectionHeader";
+import { AiFillCustomerService } from "react-icons/ai";
 
 const containerStyles = css`
   padding: 24px;
@@ -40,6 +45,23 @@ const userActionStyles = css`
     }
   }
 `;
+
+ 
+const cardStyles = css`
+  background-color: white;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  margin-top: 2rem;
+`;
+
+const iconStyles = css`
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-right: 0.5rem;
+  color: #374151;
+`;
+
 
 const emptyStateStyles = css`
   margin-top: 2rem; 
@@ -83,19 +105,12 @@ const pointerCursor = css`
   cursor: pointer;
 `;
 
-const spanStyles = css`
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: #090909;
-  margin-left: 0.5rem;
+const idNumberStyles = css`
+  color: #64748b;
+  font-size: 0.875rem;
+  margin-top: 0.125rem;
 `;
 
-const tagStyles = css`
-  font-weight: 400;
-  font-size: 0.95rem; 
-  color: #64748b; 
-  margin-left: 0.5rem;
-`
 
 type UserRoleUpdateSectionProps = {
   user: UserWithPublicAttributes;
@@ -151,7 +166,6 @@ export const EmptyStateMessage = ({ title, message }: { title: string; message: 
   </div>
 );
 
-
 const Moderators: React.FC = () => {
   const [moderators, setModerators] = useState<Omit<User, 'pin'>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -163,6 +177,77 @@ const Moderators: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<UserWithPublicAttributes | null>(null);
   const [isUpdatingRole, setIsUpdatingRole] = useState(false);
   const [selectedRole, setSelectedRole] = useState<UserRole | "">("");
+
+  const [currentPage, setCurrentPage]      = useState(1);
+  const [selectedCountry, setSelectedCountry] = useState<string>("All");
+  const pageSize                          = 10;
+  const totalPages                        = Math.ceil(moderators.length / pageSize);
+
+  const columns: TableColumnConfig<Omit<User, 'pin'>>[] = [
+    {
+      key:    "name",
+      header: "Name",
+      render: (user) => user.full_name,
+    },
+    {
+      key:    "phone",
+      header: "Phone",
+      render: (user) => user.phone_number,
+    },
+    {
+      key:    "country",
+      header: "Country",
+      render: (user) => user.country,
+    },
+    {
+      key:    "gender",
+      header: "Gender",
+      render: (user) => user.gender,
+    },
+    {
+      key:    "id",
+      header: "Id",
+      render: (user) => (
+        <div>
+          <div>{user.id_type}</div>
+          <div className={idNumberStyles}>{user.id_number}</div>
+        </div>
+      ),
+    },
+  ];
+
+  const uniqueCountries = useMemo(() => {
+    const countries = [...new Set(moderators.map((moderator) => moderator.country))]
+      .filter(Boolean)
+      .sort();
+    return countries;
+  }, [moderators]);
+
+  const filters: TableFilterConfig[] = [
+    {
+      key:    "country",
+      label:  "Filter by Country",
+      value:  selectedCountry,
+      onChange: (value) => {
+        setSelectedCountry(value);
+        setCurrentPage(1);
+      },
+      options: [
+        { value: "All", label: "All Countries" },
+        ...uniqueCountries.map((country) => ({ value: country, label: country })),
+      ],
+    },
+  ];
+
+  const pagination: TablePaginationConfig = {
+    currentPage,
+    totalPages,
+    onPageChange: setCurrentPage,
+  };
+
+  const handleClearFilters = (): void => {
+    setSelectedCountry("All");
+  };
 
   useEffect(() => {
     setIsLoading(true);
@@ -218,9 +303,7 @@ const Moderators: React.FC = () => {
       addToast("Failed to update role", "error");
     } finally {
       setIsUpdatingRole(false);
-    }}
-
-
+  }}
 
   return (
     <DashboardLayout>
@@ -242,7 +325,6 @@ const Moderators: React.FC = () => {
           showSuggestions={!selectedUser}
         />
 
-
         {selectedUser && (
           <UserRoleUpdateSection
             user={selectedUser}
@@ -262,18 +344,20 @@ const Moderators: React.FC = () => {
           />
         )}
 
-        {!isLoading && !error && moderators.length > 0 && (
-          <>
-            <div className={spanStyles}>
-              Moderators List
-              <span className={tagStyles}>
-                (All users with moderator privileges)
-              </span>
-            </div>
-            <UserTable
-              users={moderators}
+        {!isLoading && !error && moderators.length>0 && (
+          <div className={cardStyles}>
+            <SectionHeader 
+              icon={<AiFillCustomerService className={iconStyles}/>} 
+              title="Moderators">
+            </SectionHeader>
+            <Table
+              data={moderators}
+              columns={columns}
+              filters={filters}
+              pagination={pagination}
+              onClearFilters={handleClearFilters}
             />
-          </>
+          </div>
         )}
 
       </div>
