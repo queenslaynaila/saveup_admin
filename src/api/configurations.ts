@@ -55,7 +55,7 @@ export const deleteConfigurations = async (
   id: number
 ): Promise<void> => {
   try {
-    const response = await api.delete(`config${id}`);
+    const response = await api.delete(`config/${id}`);
     if (response.status === 204) return;
     throw new Error("Failed to delete configs");
   } catch (error) {
