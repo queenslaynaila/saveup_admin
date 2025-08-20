@@ -101,10 +101,11 @@ const Configurations: React.FC = () => {
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [editingConfig, setEditingConfig] = useState<Config | null>(null)
 
-  const [newConfig, setNewConfig] = useState<Omit<Config,'id'>>({
+  const [newConfig, setNewConfig] = useState<Omit<Config,'id'|'created_at'>>({
+    country_code: "",
     country_name: "",
     currency: "",
-    calling_code: 0,
+    calling_code: "",
     languages: [],
     min_deposit: 0,
     max_deposit: 0,
@@ -152,7 +153,8 @@ const Configurations: React.FC = () => {
       setShowCreateForm(false)
       setEditingConfig(null)
       setNewConfig({
-        calling_code: 0,
+        calling_code: "",
+        country_code: "",
         country_name: "",
         currency: "",
         languages: [],
@@ -172,6 +174,7 @@ const Configurations: React.FC = () => {
   const handleEdit = (config: Config) => {
     setEditingConfig(config)
     setNewConfig({
+      country_code: config.country_code,
       calling_code: config.calling_code,
       country_name: config.country_name,
       currency: config.currency,
@@ -189,7 +192,8 @@ const Configurations: React.FC = () => {
     setShowCreateForm(false)
     setEditingConfig(null)
     setNewConfig({
-      calling_code: 0,
+      country_code: "",
+      calling_code: "",
       country_name: "",
       currency: "",
       languages: [],
@@ -204,7 +208,10 @@ const Configurations: React.FC = () => {
    return (
     <DashboardLayout>
       <div className={containerStyles}>
-      <Header heading="Configurations" description="Manage country-specific app settings and financial limits" />
+      <Header 
+        heading="Configurations" 
+        description="Manage country-specific app settings and financial limits" 
+      />
       {isLoading && <Loader />}
 
       <ActionButton onClick={() => setShowCreateForm(true)} variant="primary" icon={FiPlus}>
@@ -236,9 +243,9 @@ const Configurations: React.FC = () => {
               <input
                 type="text"
                 value={newConfig.calling_code}
-                onChange={(e) => setNewConfig({ ...newConfig, calling_code: Number.parseInt(e.target.value) || 0 })}
+                onChange={(e) => setNewConfig({ ...newConfig, calling_code: e.target.value })}
                 className={inputStyles}
-                placeholder="US"
+                placeholder="KE"
               />
             </div>
             <div>
@@ -248,7 +255,7 @@ const Configurations: React.FC = () => {
                 value={newConfig.country_name}
                 onChange={(e) => setNewConfig({ ...newConfig, country_name: e.target.value })}
                 className={inputStyles}
-                placeholder="United States"
+                placeholder="Kenya"
               />
             </div>
             <div>
@@ -258,7 +265,7 @@ const Configurations: React.FC = () => {
                 value={newConfig.currency}
                 onChange={(e) => setNewConfig({ ...newConfig, currency: e.target.value })}
                 className={inputStyles}
-                placeholder="USD"
+                placeholder="KES"
               />
             </div>
             <div>
@@ -266,7 +273,7 @@ const Configurations: React.FC = () => {
               <input
                 type="number"
                 value={newConfig.calling_code}
-                onChange={(e) => setNewConfig({ ...newConfig, calling_code: Number.parseInt(e.target.value) || 0 })}
+                onChange={(e) => setNewConfig({ ...newConfig, calling_code: e.target.value })}
                 className={inputStyles}
                 placeholder="1"
               />
@@ -280,7 +287,7 @@ const Configurations: React.FC = () => {
                   setNewConfig({ ...newConfig, languages: e.target.value.split(",").map((lang) => lang.trim()) })
                 }
                 className={inputStyles}
-                placeholder="English, Spanish"
+                placeholder="English, Swahili"
               />
             </div>
             <div>

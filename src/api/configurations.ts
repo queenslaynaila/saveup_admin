@@ -43,7 +43,7 @@ export const updateConfigurations = async (
   config: Partial<Omit<Config, "id">>
 ): Promise<void> => {
   try {
-    const response = await api.put(`config/${id}`, config);
+    const response = await api.patch(`config/${id}`, config);
     if (response.status === 200) return response.data;
     throw new Error("Failed to update configs");
   } catch (error) {
