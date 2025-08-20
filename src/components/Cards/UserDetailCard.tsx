@@ -1,5 +1,13 @@
 import { css } from "@linaria/atomic"
-import { Phone, MapPin, User, CreditCard, LogIn, Check, ChevronDown, X } from "lucide-react"
+import { FiMapPin, FiLogIn } from "react-icons/fi";
+import { 
+  FaRegUser, 
+  FaChevronDown, 
+  FaPhoneAlt, 
+  FaCreditCard, 
+  FaCheck, 
+  FaTimes  
+} from "react-icons/fa";
 import { BORDER_COLOR, TEXT_PRIMARY } from "../../styles/colors"
 import type { User as UserType, UserWithPublicAttributes } from "../../types/user.types"
 import { useEffect, useRef, useState } from "react"
@@ -322,13 +330,13 @@ export function UserDetailCard({ user, onUnlock}: UserDetailCardProps) {
   }, [user.id, addToast])
 
   const userDetails = [
-    { icon: Phone, label: user.phone_number },
-    { icon: CreditCard, label: `Overall Balance: KES ${formatCurrency(totalBalance)}` },
-    { icon: User, label: `ID Type: ${user.id_type}` },
-    { icon: MapPin, label: `Country: ${user.country}` },
-    { icon: User, label: `ID Number: ${user.id_number}` },
-    { icon: User, label: `Member Since: ${formatDate(user.created_at, 'short')}` },
-    { icon: LogIn, label: `Last Login: ${formatDate(user.last_login, 'full')}` },
+    { icon: FaPhoneAlt, label: user.phone_number },
+    { icon: FaCreditCard , label: `Overall Balance: KES ${formatCurrency(totalBalance)}` },
+    { icon: FaRegUser, label: `ID Type: ${user.id_type}` },
+    { icon: FiMapPin, label: `Country: ${user.country}` },
+    { icon: FaRegUser, label: `ID Number: ${user.id_number}` },
+    { icon: FaRegUser, label: `Member Since: ${formatDate(user.created_at, 'short')}` },
+    { icon: FiLogIn, label: `Last Login: ${formatDate(user.last_login, 'full')}` },
   ]
 
   const toggleDropdown = () => {
@@ -367,7 +375,7 @@ export function UserDetailCard({ user, onUnlock}: UserDetailCardProps) {
         <div className={modalOverlay}>
           <div className={modalContent}>
             <button className={modalCloseButton}>
-              <X size={20} />
+              <FaTimes size={20} />
             </button>
             <div className={modalHeader}>
               <h3 className={modalTitle}>Update Account Status</h3>
@@ -376,7 +384,7 @@ export function UserDetailCard({ user, onUnlock}: UserDetailCardProps) {
               <div className={customSelectContainer} ref={dropdownRef}>
                 <button className={customSelectButton} onClick={toggleDropdown}  type="button">
                   {selectedStatus}
-                  <ChevronDown size={16} />
+                  <FaChevronDown size={16} />
                 </button>
                 {isDropdownOpen && (
                   <div className={customSelectDropdown}>
@@ -388,7 +396,7 @@ export function UserDetailCard({ user, onUnlock}: UserDetailCardProps) {
                       >
                         {status === selectedStatus && (
                           <span className={checkIcon}>
-                            <Check size={16} />
+                            <FaCheck size={16} />
                           </span>
                         )}
                         {status}

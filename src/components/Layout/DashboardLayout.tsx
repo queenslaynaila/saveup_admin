@@ -1,7 +1,7 @@
 import { useState } from "react"
 import type React from "react"
 import { css, cx } from "@linaria/core"
-import { Menu } from "lucide-react"
+ import { IoMenuOutline } from "react-icons/io5";
 import Sidebar from "./Sidebar"
 import { 
   BG_CARD_COLOR, 
@@ -176,7 +176,7 @@ const DashboardLayout: React.FC<LayoutProps> = ({ children }) => {
             onClick={() => setIsSidebarOpen((open) => !open)}
             aria-label="Toggle menu"
           >
-            <Menu size={24} />
+            <IoMenuOutline size={24} />
           </button>
           <h2 className={headerTitleStyles}>Admin Dashboard</h2>
         </div>
