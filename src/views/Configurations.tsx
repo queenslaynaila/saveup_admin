@@ -5,6 +5,7 @@ import {
   getConfigurations,
   createConfiguration,
   updateConfigurations,
+  deleteConfigurations,
 } from "../api/configurations"
 import { css} from "@linaria/atomic"
 import type { Config } from "../types/configurations.types"
@@ -145,9 +146,13 @@ const Configurations: React.FC = () => {
   const handleSubmit = async () => {
     try {
       if (editingConfig) {
-        await updateConfigurations(editingConfig.id, newConfig)
+        await updateConfigurations(editingConfig.id, newConfig).finally(()=>
+          addToast("Configuration was succesfully updated", "success")
+        )
       } else {
-        await createConfiguration(newConfig)
+        await createConfiguration(newConfig).finally(()=>
+          addToast("Configuration was succesfully created", "success")
+        )
       }
 
       setShowCreateForm(false)
@@ -186,6 +191,12 @@ const Configurations: React.FC = () => {
       withdrawal_charges: config.withdrawal_charges,
     })
     setShowCreateForm(true)
+  }
+
+  const handleDelete = async (config: Config) => {
+    await deleteConfigurations(config.id)
+    .catch(()=> addToast("Could not delete configuration", "error"))
+    .finally(()=> addToast("Config deleted succesfully", "success"))
   }
 
   const handleCancel = () => {
@@ -242,8 +253,8 @@ const Configurations: React.FC = () => {
               <label className={labelStyles}>Country Code</label>
               <input
                 type="text"
-                value={newConfig.calling_code}
-                onChange={(e) => setNewConfig({ ...newConfig, calling_code: e.target.value })}
+                value={newConfig.country_code}
+                onChange={(e) => setNewConfig({ ...newConfig, country_code: e.target.value })}
                 className={inputStyles}
                 placeholder="KE"
               />
@@ -367,7 +378,11 @@ const Configurations: React.FC = () => {
             {searchTerm ? "No configurations match your search." : "No configurations found."}
           </div>
         ) : (
-          <ConfigurationsTable handleEdit={handleEdit} filteredConfigurations={filteredConfigurations}/>
+          <ConfigurationsTable 
+            handleDelete={handleDelete}
+            handleEdit={handleEdit} 
+            filteredConfigurations={filteredConfigurations}
+          />
         )}
       </div>
 

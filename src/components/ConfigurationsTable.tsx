@@ -3,6 +3,7 @@ import { FiEdit2 } from "react-icons/fi"
 import { css, cx } from "@linaria/atomic"
 import type { Config } from "../types/configurations.types"
 import { ActionButton } from "./Cards/ActionButton"
+import { MdDelete } from "react-icons/md"
 
 const tableContainerStyles = css`
   overflow-x: auto;
@@ -83,6 +84,7 @@ const buttonGroupStyles = css`
 type Props = {
   filteredConfigurations: Config[]
   handleEdit: (config: Config) => void
+  handleDelete: (config: Config) => void
 }
 
  const formatCurrency = (amount: number) => {
@@ -94,7 +96,8 @@ type Props = {
 
 const ConfigurationsTable: React.FC<Props> = ({
   filteredConfigurations,
-  handleEdit
+  handleEdit,
+  handleDelete
 }) => (
   <div className={tableContainerStyles}>
     <table className={tableStyles}>
@@ -167,9 +170,18 @@ const ConfigurationsTable: React.FC<Props> = ({
             </td>
             <td className={tableCellStyles}>
               <div className={buttonGroupStyles}>
-                <ActionButton onClick={() => handleEdit(config)} variant="secondary" size="sm" icon={FiEdit2}>
-                  Edit
-                </ActionButton>
+                <ActionButton 
+                  onClick={() => handleEdit(config)} 
+                  variant="primary" 
+                  size="sm" 
+                  icon={FiEdit2}
+                />
+                <ActionButton 
+                  onClick={() => handleDelete(config)} 
+                  variant="danger" 
+                  size="sm" 
+                  icon={MdDelete}
+                />
               </div>
             </td>
           </tr>
